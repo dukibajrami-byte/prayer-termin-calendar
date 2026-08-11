@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/select";
 import { collidingPrayers, type PrayerConfig } from "@/lib/prayer";
 import { fmt, toLocalInput } from "@/lib/dates";
+import { useI18n } from "@/lib/i18n";
 import type { CalEvent, SharedCalendar } from "@/lib/store";
 
 interface Props {
@@ -42,6 +43,7 @@ export function EventDialog({
   onSave,
   onDelete,
 }: Props) {
+  const { t } = useI18n();
   const [form, setForm] = useState<CalEvent | null>(draft);
 
   useEffect(() => setForm(draft), [draft]);
@@ -73,26 +75,26 @@ export function EventDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Termin</DialogTitle>
+          <DialogTitle>{t("event.title")}</DialogTitle>
           <DialogDescription>
-            Plane deinen Termin rund um die Gebetszeiten.
+            {t("event.desc")}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="title">Titel</Label>
+            <Label htmlFor="title">{t("field.title")}</Label>
             <Input
               id="title"
               value={form.title}
-              placeholder="z. B. Teammeeting"
+              placeholder={t("field.titlePlaceholder")}
               onChange={(e) => set({ title: e.target.value })}
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label htmlFor="start">Beginn</Label>
+              <Label htmlFor="start">{t("field.start")}</Label>
               <Input
                 id="start"
                 type="datetime-local"
@@ -101,7 +103,7 @@ export function EventDialog({
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="end">Ende</Label>
+              <Label htmlFor="end">{t("field.end")}</Label>
               <Input
                 id="end"
                 type="datetime-local"
@@ -113,7 +115,7 @@ export function EventDialog({
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label>Kalender</Label>
+              <Label>{t("field.calendar")}</Label>
               <Select value={form.calendarId} onValueChange={(v) => set({ calendarId: v })}>
                 <SelectTrigger>
                   <SelectValue />
@@ -121,14 +123,14 @@ export function EventDialog({
                 <SelectContent>
                   {calendars.map((c) => (
                     <SelectItem key={c.id} value={c.id}>
-                      {c.name}
+                      {t(`cal.${c.id}`)}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label>Erinnerung</Label>
+              <Label>{t("field.reminder")}</Label>
               <Select
                 value={String(form.reminderMinutes)}
                 onValueChange={(v) => set({ reminderMinutes: Number(v) })}
@@ -139,7 +141,7 @@ export function EventDialog({
                 <SelectContent>
                   {[-1, 5, 10, 15, 30, 60].map((m) => (
                     <SelectItem key={m} value={String(m)}>
-                      {m < 0 ? "Keine" : `${m} Min. vorher`}
+                      {m < 0 ? t("reminder.none") : t("reminder.before", { m })}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -148,7 +150,7 @@ export function EventDialog({
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="notes">Notiz</Label>
+            <Label htmlFor="notes">{t("field.notes")}</Label>
             <Textarea
               id="notes"
               rows={2}
@@ -163,7 +165,7 @@ export function EventDialog({
                 <AlertTriangle className="mt-0.5 h-4 w-4 text-warning-foreground" />
                 <div className="space-y-1 text-sm">
                   <p className="font-medium text-warning-foreground">
-                    Überschneidung mit Gebetszeit
+                    {t("conflict.title")}
                   </p>
                   <ul className="text-muted-foreground">
                     {conflicts.map((c) => (
@@ -173,7 +175,7 @@ export function EventDialog({
                     ))}
                   </ul>
                   <Button size="sm" variant="secondary" onClick={shiftAfterPrayer}>
-                    Termin nach dem Gebet legen
+                    {t("conflict.shift")}
                   </Button>
                 </div>
               </div>
@@ -190,15 +192,15 @@ export function EventDialog({
               onOpenChange(false);
             }}
           >
-            <Trash2 className="mr-1 h-4 w-4" /> Löschen
+            <Trash2 className="mr-1 h-4 w-4" /> {t("action.delete")}
           </Button>
           <Button
             onClick={() => {
-              onSave({ ...form, title: form.title.trim() || "Neuer Termin" });
+              onSave({ ...form, title: form.title.trim() || t("event.untitled") });
               onOpenChange(false);
             }}
           >
-            Speichern
+            {t("action.save")}
           </Button>
         </DialogFooter>
       </DialogContent>

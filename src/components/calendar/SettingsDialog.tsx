@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import { METHODS, type MethodKey, type MadhabKey } from "@/lib/prayer";
 import type { Settings } from "@/lib/store";
+import { LANGS, useI18n, type Lang } from "@/lib/i18n";
 
 const TIMEZONES = [
   "Europe/Berlin",
@@ -50,19 +51,36 @@ export function SettingsDialog({
   onLocate,
   locating,
 }: Props) {
+  const { t, lang, setLang } = useI18n();
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Einstellungen</DialogTitle>
+          <DialogTitle>{t("settings.title")}</DialogTitle>
           <DialogDescription>
-            Standort, Berechnungsmethode und Erinnerungen anpassen.
+            {t("settings.desc")}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           <div className="space-y-1.5">
-            <Label>Berechnungsmethode</Label>
+            <Label>{t("lang.label")}</Label>
+            <Select value={lang} onValueChange={(v) => setLang(v as Lang)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.entries(LANGS).map(([key, label]) => (
+                  <SelectItem key={key} value={key}>
+                    {label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label>{t("field.method")}</Label>
             <Select
               value={settings.method}
               onValueChange={(v) => onChange({ method: v as MethodKey })}
@@ -82,7 +100,7 @@ export function SettingsDialog({
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label>Asr-Berechnung (Madhab)</Label>
+              <Label>{t("field.madhab")}</Label>
               <Select
                 value={settings.madhab}
                 onValueChange={(v) => onChange({ madhab: v as MadhabKey })}
@@ -91,13 +109,13 @@ export function SettingsDialog({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="shafi">Shafi'i / Maliki / Hanbali</SelectItem>
-                  <SelectItem value="hanafi">Hanafi</SelectItem>
+                  <SelectItem value="shafi">{t("madhab.shafi")}</SelectItem>
+                  <SelectItem value="hanafi">{t("madhab.hanafi")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="dur">Gebetsdauer (Min.)</Label>
+              <Label htmlFor="dur">{t("field.duration")}</Label>
               <Input
                 id="dur"
                 type="number"
@@ -112,8 +130,8 @@ export function SettingsDialog({
           <div className="rounded-lg border border-border p-3">
             <div className="flex items-center justify-between">
               <div>
-                <Label>Standort automatisch erkennen</Label>
-                <p className="text-xs text-muted-foreground">Nutzt die Standortfreigabe des Browsers.</p>
+                <Label>{t("loc.auto")}</Label>
+                <p className="text-xs text-muted-foreground">{t("loc.autoHint")}</p>
               </div>
               <Switch
                 checked={settings.autoLocation}
@@ -122,7 +140,7 @@ export function SettingsDialog({
             </div>
             <div className="mt-3 grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label htmlFor="lat">Breitengrad</Label>
+                <Label htmlFor="lat">{t("field.lat")}</Label>
                 <Input
                   id="lat"
                   type="number"
@@ -132,7 +150,7 @@ export function SettingsDialog({
                 />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="lon">Längengrad</Label>
+                <Label htmlFor="lon">{t("field.lon")}</Label>
                 <Input
                   id="lon"
                   type="number"
@@ -143,7 +161,7 @@ export function SettingsDialog({
               </div>
             </div>
             <div className="mt-3 space-y-1.5">
-              <Label htmlFor="locname">Ortsname</Label>
+              <Label htmlFor="locname">{t("field.locName")}</Label>
               <Input
                 id="locname"
                 value={settings.locationName}
@@ -158,13 +176,13 @@ export function SettingsDialog({
               disabled={locating}
             >
               <LocateFixed className="mr-1 h-4 w-4" />
-              {locating ? "Suche Standort…" : "Standort jetzt ermitteln"}
+              {locating ? t("loc.detecting") : t("loc.detect")}
             </Button>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label>Zeitzone</Label>
+              <Label>{t("field.timezone")}</Label>
               <Select value={settings.timeZone} onValueChange={(v) => onChange({ timeZone: v })}>
                 <SelectTrigger>
                   <SelectValue />
@@ -179,7 +197,7 @@ export function SettingsDialog({
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label>Gebetserinnerung</Label>
+              <Label>{t("field.prayerReminder")}</Label>
               <Select
                 value={String(settings.prayerReminderMinutes)}
                 onValueChange={(v) => onChange({ prayerReminderMinutes: Number(v) })}
@@ -190,7 +208,7 @@ export function SettingsDialog({
                 <SelectContent>
                   {[-1, 5, 10, 15, 30].map((m) => (
                     <SelectItem key={m} value={String(m)}>
-                      {m < 0 ? "Keine" : `${m} Min. vorher`}
+                      {m < 0 ? t("reminder.none") : t("reminder.before", { m })}
                     </SelectItem>
                   ))}
                 </SelectContent>
