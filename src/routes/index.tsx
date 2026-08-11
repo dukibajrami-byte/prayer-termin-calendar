@@ -19,6 +19,7 @@ import {
   type PrayerConfig,
   type PrayerSlot,
 } from "@/lib/prayer";
+import { LANGS, useI18n, type Lang } from "@/lib/i18n";
 import {
   DEFAULT_CALENDARS,
   DEFAULT_SETTINGS,
@@ -51,6 +52,7 @@ export const Route = createFileRoute("/")({
 type ViewMode = "day" | "week" | "month";
 
 function Index() {
+  const { t, lang, setLang } = useI18n();
   const [settings, setSettings] = useLocalState<Settings>("mtk.settings", DEFAULT_SETTINGS);
   const { events, upsert, remove } = useEvents();
   const [view, setView] = useState<ViewMode>("week");
@@ -81,7 +83,7 @@ function Index() {
 
   const locate = useCallback(() => {
     if (typeof navigator === "undefined" || !navigator.geolocation) {
-      toast.error("Standortermittlung wird nicht unterstützt.");
+      toast.error(t("toast.geoUnsupported"));
       return;
     }
     setLocating(true);
@@ -92,18 +94,18 @@ function Index() {
           ...prev,
           latitude: Number(pos.coords.latitude.toFixed(4)),
           longitude: Number(pos.coords.longitude.toFixed(4)),
-          locationName: `Aktueller Standort (${pos.coords.latitude.toFixed(2)}, ${pos.coords.longitude.toFixed(2)})`,
+          locationName: `${t("loc.current")} (${pos.coords.latitude.toFixed(2)}, ${pos.coords.longitude.toFixed(2)})`,
           timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || prev.timeZone,
         }));
-        toast.success("Gebetszeiten für deinen Standort aktualisiert.");
+        toast.success(t("toast.located"));
       },
       () => {
         setLocating(false);
-        toast.error("Standort nicht verfügbar – bitte manuell eintragen.");
+        toast.error(t("toast.geoFailed"));
       },
       { enableHighAccuracy: false, timeout: 10_000 },
     );
-  }, [setSettings]);
+  }, [setSettings, t]);
 
   useEffect(() => {
     if (settings.autoLocation && settings.locationName === DEFAULT_SETTINGS.locationName) {
@@ -120,8 +122,10 @@ function Index() {
     const diff = Math.max(0, upcoming.start.getTime() - now.getTime());
     const h = Math.floor(diff / 3_600_000);
     const m = Math.floor((diff % 3_600_000) / 60_000);
-    return h > 0 ? `${h} Std. ${m} Min.` : `${m} Min.`;
-  }, [upcoming, now]);
+    return h > 0
+      ? `${h} ${t("time.hours")} ${m} ${t("time.minutes")}`
+      : `${m} ${t("time.minutes")}`;
+  }, [upcoming, now, t]);
 
   const conflictIds = useMemo(() => {
     const set = new Set<string>();
@@ -145,7 +149,10 @@ function Index() {
       const key = `event-${e.id}-${at}`;
       if (!notified.current.has(key) && at <= now.getTime() && now.getTime() - at < 120_000) {
         notified.current.add(key);
-        fire(`Termin: ${e.title}`, `Beginnt um ${fmt(new Date(e.start), "HH:mm")} Uhr.`);
+        fire(
+          t("notif.event", { title: e.title }),
+          t("notif.eventBody", { time: fmt(new Date(e.start), "HH:mm") }),
+        );
       }
     }
     if (upcoming && settings.prayerReminderMinutes >= 0) {
@@ -153,10 +160,13 @@ function Index() {
       const key = `prayer-${upcoming.name}-${at}`;
       if (!notified.current.has(key) && at <= now.getTime() && now.getTime() - at < 120_000) {
         notified.current.add(key);
-        fire(`${upcoming.label} bald`, `Gebetsbeginn um ${fmt(upcoming.start, "HH:mm")} Uhr.`);
+        fire(
+          t("notif.prayerSoon", { label: upcoming.label }),
+          t("notif.prayerBody", { time: fmt(upcoming.start, "HH:mm") }),
+        );
       }
     }
-  }, [now, events, upcoming, settings.prayerReminderMinutes]);
+  }, [now, events, upcoming, settings.prayerReminderMinutes, t]);
 
   const openNew = (start: Date) => {
     const end = new Date(start.getTime() + 60 * 60_000);
@@ -192,15 +202,33 @@ function Index() {
         <header className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="font-display text-2xl font-semibold text-foreground">
-              Muslimischer Terminkalender
+              {t("app.title")}
             </h1>
             <p className="text-sm text-muted-foreground">
-              Termine planen – im Einklang mit den Gebetszeiten.
+              {t("app.subtitle")}
             </p>
           </div>
           <div className="flex items-center gap-2">
+            <div className="flex items-center rounded-md border border-border p-0.5">
+              {(Object.keys(LANGS) as Lang[]).map((code) => (
+                <button
+                  key={code}
+                  type="button"
+                  onClick={() => setLang(code)}
+                  aria-pressed={lang === code}
+                  className={
+                    "rounded px-2 py-1 text-xs font-medium uppercase transition-colors " +
+                    (lang === code
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:bg-secondary")
+                  }
+                >
+                  {code}
+                </button>
+              ))}
+            </div>
             <Button variant="outline" size="sm" onClick={() => setSettingsOpen(true)}>
-              <Settings2 className="mr-1 h-4 w-4" /> Einstellungen
+              <Settings2 className="mr-1 h-4 w-4" /> {t("nav.settings")}
             </Button>
             <Button
               size="sm"
@@ -210,7 +238,7 @@ function Index() {
                 openNew(start);
               }}
             >
-              <CalendarPlus className="mr-1 h-4 w-4" /> Termin
+              <CalendarPlus className="mr-1 h-4 w-4" /> {t("nav.newEvent")}
             </Button>
           </div>
         </header>
@@ -224,10 +252,10 @@ function Index() {
 
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-1">
-            <Button variant="ghost" size="icon" aria-label="Zurück" onClick={() => step(-1)}>
+            <Button variant="ghost" size="icon" aria-label={t("nav.prev")} onClick={() => step(-1)}>
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon" aria-label="Weiter" onClick={() => step(1)}>
+            <Button variant="ghost" size="icon" aria-label={t("nav.next")} onClick={() => step(1)}>
               <ChevronRight className="h-4 w-4" />
             </Button>
             <span className="ml-2 font-display text-lg">{rangeLabel}</span>
@@ -236,14 +264,14 @@ function Index() {
               size="sm"
               onClick={() => setCursor(startOfDay(new Date()))}
             >
-              Heute
+              {t("nav.today")}
             </Button>
           </div>
           <Tabs value={view} onValueChange={(v) => setView(v as ViewMode)}>
             <TabsList>
-              <TabsTrigger value="day">Tag</TabsTrigger>
-              <TabsTrigger value="week">Woche</TabsTrigger>
-              <TabsTrigger value="month">Monat</TabsTrigger>
+              <TabsTrigger value="day">{t("view.day")}</TabsTrigger>
+              <TabsTrigger value="week">{t("view.week")}</TabsTrigger>
+              <TabsTrigger value="month">{t("view.month")}</TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
@@ -281,15 +309,15 @@ function Index() {
 
         <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
           <span className="flex items-center gap-1">
-            <span className="h-3 w-4 rounded-sm bg-prayer/30 ring-1 ring-prayer/50" /> Gebetszeit
+            <span className="h-3 w-4 rounded-sm bg-prayer/30 ring-1 ring-prayer/50" /> {t("legend.prayer")}
           </span>
           {DEFAULT_CALENDARS.map((c) => (
             <span key={c.id} className="flex items-center gap-1">
               <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: c.color }} />
-              {c.name}
+              {t(`cal.${c.id}`)}
             </span>
           ))}
-          <span className="flex items-center gap-1">⚠️ Kollision mit Gebet</span>
+          <span className="flex items-center gap-1">⚠️ {t("legend.conflict")}</span>
         </div>
       </div>
 
