@@ -238,8 +238,8 @@ function Index() {
   return (
     <main className="min-h-screen bg-background">
       <Toaster />
-      <div className="mx-auto max-w-6xl space-y-5 px-4 py-6">
-        <header className="flex flex-wrap items-center justify-between gap-3">
+      <div className="mx-auto max-w-6xl space-y-5 px-0 py-6 sm:px-4">
+        <header className="flex flex-wrap items-center justify-between gap-3 px-4 sm:px-0">
           <div>
             <h1 className="font-display text-2xl font-semibold text-foreground">
               {t("app.title")}
@@ -309,7 +309,7 @@ function Index() {
           />
         )}
 
-        <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-3 px-4 sm:px-0">
           <div className="flex items-center gap-1">
             <Button variant="ghost" size="icon" aria-label={t("nav.prev")} onClick={() => step(-1)}>
               <ChevronLeft className="h-4 w-4" />
@@ -369,7 +369,7 @@ function Index() {
         )}
 
 
-        <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+        <div className="flex flex-wrap items-center gap-4 px-4 text-xs text-muted-foreground sm:px-0">
           <span className="flex items-center gap-1">
             <span className="h-3 w-4 rounded-sm bg-prayer/30 ring-1 ring-prayer/50" /> {t("legend.prayer")}
           </span>
