@@ -309,7 +309,7 @@ function Index() {
           />
         )}
 
-        <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-3 px-4 sm:px-0">
           <div className="flex items-center gap-1">
             <Button variant="ghost" size="icon" aria-label={t("nav.prev")} onClick={() => step(-1)}>
               <ChevronLeft className="h-4 w-4" />
