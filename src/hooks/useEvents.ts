@@ -75,6 +75,10 @@ export function useEvents(cursor: Date, view: "day" | "week" | "month") {
       ]);
       setCloudCalendars((calendars as CalendarRow[]).map(cloudCalendarToShared));
       setCloudEvents((events as CloudEventRow[]).map(toCalEvent));
+    } catch (error) {
+      // Session expired or backend unreachable: keep the UI alive instead of
+      // letting the rejection bubble into the root error boundary.
+      console.error("Cloud sync failed", error);
     } finally {
       setLoading(false);
     }
@@ -96,7 +100,9 @@ export function useEvents(cursor: Date, view: "day" | "week" | "month") {
         localEvents,
         localCalendars: DEFAULT_CALENDARS,
       },
-    }).then(() => fetchCloud());
+    })
+      .then(() => fetchCloud())
+      .catch((error) => console.error("Local event migration failed", error));
   }, [useCloud, localLoaded, migrated, localEvents, fetchCloud]);
 
   const events = useMemo(
@@ -112,8 +118,13 @@ export function useEvents(cursor: Date, view: "day" | "week" | "month") {
   const upsert = useCallback(
     async (event: CalEvent) => {
       if (useCloud) {
-        await upsertCloudEvent({ data: { event: toCloudEvent(event) } });
-        await fetchCloud();
+        try {
+          await upsertCloudEvent({ data: { event: toCloudEvent(event) } });
+          await fetchCloud();
+        } catch (error) {
+          console.error("Saving event failed", error);
+          upsertLocal(event);
+        }
       } else {
         upsertLocal(event);
       }
@@ -124,8 +135,13 @@ export function useEvents(cursor: Date, view: "day" | "week" | "month") {
   const remove = useCallback(
     async (id: string) => {
       if (useCloud) {
-        await deleteCloudEvent({ data: { id } });
-        await fetchCloud();
+        try {
+          await deleteCloudEvent({ data: { id } });
+          await fetchCloud();
+        } catch (error) {
+          console.error("Deleting event failed", error);
+          removeLocal(id);
+        }
       } else {
         removeLocal(id);
       }

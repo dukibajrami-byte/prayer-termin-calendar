@@ -28,6 +28,9 @@ export function useCalendars() {
     try {
       const data = await listCalendars({});
       setCalendars(data as CalendarRow[]);
+    } catch (error) {
+      console.error("Loading calendars failed", error);
+      setCalendars([]);
     } finally {
       setLoading(false);
     }
@@ -72,8 +75,12 @@ export function useCalendars() {
   const fetchMembers = useCallback(
     async (calendarId: string) => {
       if (!user) return;
-      const data = await listCalendarMembers({ data: { calendarId } });
-      setMembers((prev) => ({ ...prev, [calendarId]: data as CalendarMemberRow[] }));
+      try {
+        const data = await listCalendarMembers({ data: { calendarId } });
+        setMembers((prev) => ({ ...prev, [calendarId]: data as CalendarMemberRow[] }));
+      } catch (error) {
+        console.error("Loading calendar members failed", error);
+      }
     },
     [user],
   );
