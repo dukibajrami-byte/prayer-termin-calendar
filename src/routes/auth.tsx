@@ -12,7 +12,7 @@ import { useAuth } from "@/hooks/useAuth";
 
 export const Route = createFileRoute("/auth")({
   ssr: false,
-  validateSearch: (search: Record<string, unknown>): { next?: string } => ({
+  validateSearch: (search: Record<string, unknown>): { next?: string | undefined } => ({
     next:
       typeof search["next"] === "string" && search["next"].startsWith("/")
         ? (search["next"] as string)
@@ -53,7 +53,7 @@ function AuthPage() {
     if (!loading && user) void navigate({ to: target });
   }, [loading, user, navigate, target]);
 
-  const submit = async (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     setBusy(true);
     if (mode === "signup") {
@@ -63,13 +63,19 @@ function AuthPage() {
         options: { emailRedirectTo: `${window.location.origin}${target}` },
       });
       setBusy(false);
-      if (error) return toast.error(error.message);
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
       toast.success(t("auth.checkEmail"));
       return;
     }
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     void navigate({ to: target });
   };
 
