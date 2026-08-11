@@ -18,15 +18,15 @@ export const PRAYER_LABELS: Record<PrayerName, string> = {
 
 export const METHODS = {
   MuslimWorldLeague: "Muslim World League",
-  Egyptian: "Ägyptische Behörde",
-  Karachi: "Universität Karachi",
+  Egyptian: "Egyptian General Authority",
+  Karachi: "University of Karachi",
   UmmAlQura: "Umm al-Qura, Makkah",
   Dubai: "Dubai",
-  Qatar: "Katar",
+  Qatar: "Qatar",
   Kuwait: "Kuwait",
-  Singapore: "Singapur",
-  Turkey: "Diyanet (Türkei)",
-  Tehran: "Teheran",
+  Singapore: "Singapore",
+  Turkey: "Diyanet (Turkey)",
+  Tehran: "Tehran",
   NorthAmerica: "ISNA (Nordamerika)",
   MoonsightingCommittee: "Moonsighting Committee",
 } as const;
