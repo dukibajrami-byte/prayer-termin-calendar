@@ -19,6 +19,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { METHODS, type MethodKey, type MadhabKey } from "@/lib/prayer";
+import { isFreeMethod } from "@/lib/premium";
+import { useSubscription } from "@/hooks/useSubscription";
 import type { Settings } from "@/lib/store";
 import { LANGS, useI18n, type Lang } from "@/lib/i18n";
 
@@ -53,6 +55,7 @@ export function SettingsDialog({
   locating,
 }: Props) {
   const { t, lang, setLang } = useI18n();
+  const { isPremium } = useSubscription();
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
@@ -91,8 +94,15 @@ export function SettingsDialog({
               </SelectTrigger>
               <SelectContent>
                 {Object.entries(METHODS).map(([key, label]) => (
-                  <SelectItem key={key} value={key}>
+                  <SelectItem
+                    key={key}
+                    value={key}
+                    disabled={!isPremium && !isFreeMethod(key as MethodKey)}
+                  >
                     {label}
+                    {!isPremium && !isFreeMethod(key as MethodKey)
+                      ? ` · ${t("premium.lockedMethod")}`
+                      : ""}
                   </SelectItem>
                 ))}
               </SelectContent>
