@@ -12,3 +12,6 @@ export const PRICE_YEARLY = "premium_yearly";
 export function isFreeMethod(method: MethodKey) {
   return FREE_METHODS.includes(method);
 }
+
+/** Premium-Feature: Cloud-Sync und geteilte Kalender für Familie/Moschee/Verein */
+export const CLOUD_FEATURES_REQUIRE_PREMIUM = true;

@@ -86,7 +86,7 @@ export function useLocalState<T>(key: string, fallback: T) {
   return [value, update, loaded] as const;
 }
 
-export function useEvents() {
+export function useLocalEvents() {
   const [state, setState, loaded] = useLocalState<{ items: CalEvent[] }>("mtk.events", {
     items: [],
   });

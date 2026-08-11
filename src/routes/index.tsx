@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { addDays, addMonths, startOfDay } from "date-fns";
-import { CalendarPlus, ChevronLeft, ChevronRight, Settings2 } from "lucide-react";
+import { CalendarPlus, CalendarDays, ChevronLeft, ChevronRight, Crown, Settings2 } from "lucide-react";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { TimeGrid } from "@/components/calendar/TimeGrid";
 import { MonthView } from "@/components/calendar/MonthView";
 import { EventDialog } from "@/components/calendar/EventDialog";
 import { SettingsDialog } from "@/components/calendar/SettingsDialog";
+import { CalendarManagerDialog } from "@/components/calendar/CalendarManagerDialog";
 import { PrayerStrip } from "@/components/calendar/PrayerStrip";
 import { fmt, weekDays } from "@/lib/dates";
 import {
@@ -23,17 +24,20 @@ import { LANGS, useI18n, type Lang } from "@/lib/i18n";
 import { AUTO_LOCATION, resolveLocationName } from "@/lib/location";
 import { InstallButton } from "@/components/InstallButton";
 import { Link } from "@tanstack/react-router";
-import { Crown } from "lucide-react";
 import { useSubscription } from "@/hooks/useSubscription";
 import { FREE_REMINDER_LIMIT } from "@/lib/premium";
 import {
   DEFAULT_CALENDARS,
   DEFAULT_SETTINGS,
-  useEvents,
   useLocalState,
   type CalEvent,
   type Settings,
+  type SharedCalendar,
 } from "@/lib/store";
+import { useEvents } from "@/hooks/useEvents";
+
+
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -60,14 +64,20 @@ type ViewMode = "day" | "week" | "month";
 function Index() {
   const { t, lang, setLang } = useI18n();
   const [settings, setSettings] = useLocalState<Settings>("mtk.settings", DEFAULT_SETTINGS);
-  const { events, upsert, remove } = useEvents();
   const { isPremium } = useSubscription();
   const [view, setView] = useState<ViewMode>("week");
   const [cursor, setCursor] = useState(() => startOfDay(new Date()));
+  const { events, calendars, upsert, remove } = useEvents(cursor, view);
+  const calendarName = (c: SharedCalendar) =>
+    DEFAULT_CALENDARS.some((dc) => dc.id === c.id) ? t(`cal.${c.id}`) : c.name;
   const [draft, setDraft] = useState<CalEvent | null>(null);
+
+
   const [eventOpen, setEventOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [calendarOpen, setCalendarOpen] = useState(false);
   const [locating, setLocating] = useState(false);
+
   const [now, setNow] = useState(() => new Date());
   const notified = useRef<Set<string>>(new Set());
   const [hydrated, setHydrated] = useState(false);
@@ -179,16 +189,18 @@ function Index() {
 
   const openNew = (start: Date) => {
     const end = new Date(start.getTime() + 60 * 60_000);
+    const defaultCalendar = calendars[0] ?? DEFAULT_CALENDARS[0]!;
     setDraft({
       id: crypto.randomUUID(),
       title: "",
       start: start.toISOString(),
       end: end.toISOString(),
-      calendarId: DEFAULT_CALENDARS[0]!.id,
+      calendarId: defaultCalendar.id,
       reminderMinutes: 15,
     });
     setEventOpen(true);
   };
+
 
   const step = (dir: 1 | -1) => {
     setCursor((c) =>
@@ -264,6 +276,9 @@ function Index() {
                 <Crown className="mr-1 h-4 w-4" /> {t("premium.nav")}
               </Link>
             </Button>
+            <Button variant="outline" size="sm" onClick={() => setCalendarOpen(true)}>
+              <CalendarDays className="mr-1 h-4 w-4" /> {t("calendars.manage")}
+            </Button>
             <Button
               size="sm"
               onClick={() => {
@@ -274,6 +289,7 @@ function Index() {
             >
               <CalendarPlus className="mr-1 h-4 w-4" /> {t("nav.newEvent")}
             </Button>
+
           </div>
         </header>
 
@@ -325,7 +341,7 @@ function Index() {
           <MonthView
             month={cursor}
             events={events}
-            calendars={DEFAULT_CALENDARS}
+            calendars={calendars}
             config={config}
             conflictIds={conflictIds}
             onSelectDay={(d) => {
@@ -341,7 +357,7 @@ function Index() {
           <TimeGrid
             days={days}
             events={events}
-            calendars={DEFAULT_CALENDARS}
+            calendars={calendars}
             config={config}
             conflictIds={conflictIds}
             onCreate={openNew}
@@ -352,14 +368,15 @@ function Index() {
           />
         )}
 
+
         <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
           <span className="flex items-center gap-1">
             <span className="h-3 w-4 rounded-sm bg-prayer/30 ring-1 ring-prayer/50" /> {t("legend.prayer")}
           </span>
-          {DEFAULT_CALENDARS.map((c) => (
+          {calendars.map((c) => (
             <span key={c.id} className="flex items-center gap-1">
               <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: c.color }} />
-              {t(`cal.${c.id}`)}
+              {calendarName(c)}
             </span>
           ))}
           <span className="flex items-center gap-1">⚠️ {t("legend.conflict")}</span>
@@ -370,11 +387,12 @@ function Index() {
         open={eventOpen}
         onOpenChange={setEventOpen}
         draft={draft}
-        calendars={DEFAULT_CALENDARS}
+        calendars={calendars.map((c) => ({ ...c, name: calendarName(c) }))}
         config={config}
         onSave={saveEvent}
         onDelete={remove}
       />
+
       <SettingsDialog
         open={settingsOpen}
         onOpenChange={setSettingsOpen}
@@ -383,6 +401,9 @@ function Index() {
         onLocate={locate}
         locating={locating}
       />
+
+      <CalendarManagerDialog open={calendarOpen} onOpenChange={setCalendarOpen} />
     </main>
   );
 }
+
