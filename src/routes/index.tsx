@@ -22,6 +22,11 @@ import {
 import { LANGS, useI18n, type Lang } from "@/lib/i18n";
 import { AUTO_LOCATION, resolveLocationName } from "@/lib/location";
 import { InstallButton } from "@/components/InstallButton";
+import { Link } from "@tanstack/react-router";
+import { Crown } from "lucide-react";
+import { useSubscription } from "@/hooks/useSubscription";
+import { FREE_REMINDER_LIMIT } from "@/lib/premium";
+import type { CalEvent } from "@/lib/store";
 import {
   DEFAULT_CALENDARS,
   DEFAULT_SETTINGS,
@@ -57,6 +62,7 @@ function Index() {
   const { t, lang, setLang } = useI18n();
   const [settings, setSettings] = useLocalState<Settings>("mtk.settings", DEFAULT_SETTINGS);
   const { events, upsert, remove } = useEvents();
+  const { isPremium } = useSubscription();
   const [view, setView] = useState<ViewMode>("week");
   const [cursor, setCursor] = useState(() => startOfDay(new Date()));
   const [draft, setDraft] = useState<CalEvent | null>(null);
@@ -235,6 +241,11 @@ function Index() {
               <Settings2 className="mr-1 h-4 w-4" /> {t("nav.settings")}
             </Button>
             <InstallButton />
+            <Button variant="outline" size="sm" asChild>
+              <Link to="/premium">
+                <Crown className="mr-1 h-4 w-4" /> {t("premium.nav")}
+              </Link>
+            </Button>
             <Button
               size="sm"
               onClick={() => {
