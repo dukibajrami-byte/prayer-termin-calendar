@@ -110,9 +110,15 @@ export function TimeGrid({
                       key={p.name}
                       className="pointer-events-none absolute inset-x-0 z-10 border-y border-prayer/40 bg-prayer/15 px-1"
                       style={{ top, height }}
+                      title={`${t(`prayer.${p.name}`)} · ${fmt(p.start, "HH:mm")}`}
                     >
-                      <span className="text-[10px] font-semibold uppercase tracking-wide text-prayer-foreground">
-                        {t(`prayer.${p.name}`)} · {fmt(p.start, "HH:mm")}
+                      <span className="block truncate text-[9px] font-semibold uppercase leading-none tracking-wide text-prayer-foreground sm:text-[10px]">
+                        <span className="sm:hidden">
+                          {t(`prayer.${p.name}`).charAt(0)} {fmt(p.start, "HH:mm")}
+                        </span>
+                        <span className="hidden sm:inline">
+                          {t(`prayer.${p.name}`)} · {fmt(p.start, "HH:mm")}
+                        </span>
                       </span>
                     </div>
                   );
