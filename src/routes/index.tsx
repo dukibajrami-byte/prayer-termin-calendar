@@ -369,7 +369,7 @@ function Index() {
         )}
 
 
-        <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+        <div className="flex flex-wrap items-center gap-4 px-4 text-xs text-muted-foreground sm:px-0">
           <span className="flex items-center gap-1">
             <span className="h-3 w-4 rounded-sm bg-prayer/30 ring-1 ring-prayer/50" /> {t("legend.prayer")}
           </span>
