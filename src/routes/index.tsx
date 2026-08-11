@@ -20,6 +20,8 @@ import {
   type PrayerSlot,
 } from "@/lib/prayer";
 import { LANGS, useI18n, type Lang } from "@/lib/i18n";
+import { AUTO_LOCATION, resolveLocationName } from "@/lib/location";
+import { InstallButton } from "@/components/InstallButton";
 import {
   DEFAULT_CALENDARS,
   DEFAULT_SETTINGS,
@@ -96,7 +98,7 @@ function Index() {
           ...prev,
           latitude: Number(pos.coords.latitude.toFixed(4)),
           longitude: Number(pos.coords.longitude.toFixed(4)),
-          locationName: `${t("loc.current")} (${pos.coords.latitude.toFixed(2)}, ${pos.coords.longitude.toFixed(2)})`,
+          locationName: AUTO_LOCATION,
           timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || prev.timeZone,
         }));
         toast.success(t("toast.located"));
@@ -232,6 +234,7 @@ function Index() {
             <Button variant="outline" size="sm" onClick={() => setSettingsOpen(true)}>
               <Settings2 className="mr-1 h-4 w-4" /> {t("nav.settings")}
             </Button>
+            <InstallButton />
             <Button
               size="sm"
               onClick={() => {
@@ -251,7 +254,12 @@ function Index() {
           <PrayerStrip
             slots={todaySlots}
             next={upcoming}
-            locationName={settings.locationName}
+            locationName={resolveLocationName(
+              settings.locationName,
+              t,
+              settings.latitude,
+              settings.longitude,
+            )}
             countdown={countdown}
           />
         )}

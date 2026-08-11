@@ -164,7 +164,12 @@ export function SettingsDialog({
               <Label htmlFor="locname">{t("field.locName")}</Label>
               <Input
                 id="locname"
-                value={settings.locationName}
+                value={resolveLocationName(
+                  settings.locationName,
+                  t,
+                  settings.latitude,
+                  settings.longitude,
+                )}
                 onChange={(e) => onChange({ locationName: e.target.value })}
               />
             </div>
