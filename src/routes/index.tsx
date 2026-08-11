@@ -63,6 +63,8 @@ function Index() {
   const [locating, setLocating] = useState(false);
   const [now, setNow] = useState(() => new Date());
   const notified = useRef<Set<string>>(new Set());
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => setHydrated(true), []);
 
   const config: PrayerConfig = useMemo(
     () => ({
