@@ -238,8 +238,8 @@ function Index() {
   return (
     <main className="min-h-screen bg-background">
       <Toaster />
-      <div className="mx-auto max-w-6xl space-y-5 px-4 py-6">
-        <header className="flex flex-wrap items-center justify-between gap-3">
+      <div className="mx-auto max-w-6xl space-y-5 px-0 py-6 sm:px-4">
+        <header className="flex flex-wrap items-center justify-between gap-3 px-4 sm:px-0">
           <div>
             <h1 className="font-display text-2xl font-semibold text-foreground">
               {t("app.title")}
