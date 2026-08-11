@@ -186,6 +186,10 @@ export type Database = {
         Args: { check_env?: string; user_uuid: string }
         Returns: boolean
       }
+      is_calendar_member: {
+        Args: { _calendar_id: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
