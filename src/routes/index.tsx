@@ -335,6 +335,8 @@ function Index() {
           </Tabs>
         </div>
 
+        <h2 className="sr-only">{t("section.calendar")}</h2>
+
         {!hydrated ? (
           <div className="h-[480px] animate-pulse rounded-xl bg-secondary" />
         ) : view === "month" ? (
