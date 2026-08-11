@@ -26,7 +26,6 @@ import { Link } from "@tanstack/react-router";
 import { Crown } from "lucide-react";
 import { useSubscription } from "@/hooks/useSubscription";
 import { FREE_REMINDER_LIMIT } from "@/lib/premium";
-import type { CalEvent } from "@/lib/store";
 import {
   DEFAULT_CALENDARS,
   DEFAULT_SETTINGS,
