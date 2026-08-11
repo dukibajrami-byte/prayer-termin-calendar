@@ -9,6 +9,7 @@ import {
 } from "date-fns";
 import { cn } from "@/lib/utils";
 import { fmt, sameDay } from "@/lib/dates";
+import { useI18n } from "@/lib/i18n";
 import { getPrayerSlots, type PrayerConfig } from "@/lib/prayer";
 import type { CalEvent, SharedCalendar } from "@/lib/store";
 
@@ -31,6 +32,7 @@ export function MonthView({
   onSelectDay,
   onSelect,
 }: Props) {
+  const { t } = useI18n();
   const start = startOfWeek(startOfMonth(month), { weekStartsOn: 1 });
   const end = endOfWeek(endOfMonth(month), { weekStartsOn: 1 });
   const days = eachDayOfInterval({ start, end });
@@ -108,7 +110,7 @@ export function MonthView({
                 })}
                 {dayEvents.length > 3 && (
                   <span className="block text-[10px] text-muted-foreground">
-                    +{dayEvents.length - 3} weitere
+                    {t("month.more", { n: dayEvents.length - 3 })}
                   </span>
                 )}
               </div>

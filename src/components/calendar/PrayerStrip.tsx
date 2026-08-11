@@ -1,6 +1,7 @@
 import { MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { fmt } from "@/lib/dates";
+import { useI18n } from "@/lib/i18n";
 import type { PrayerSlot } from "@/lib/prayer";
 
 interface Props {
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export function PrayerStrip({ slots, next, locationName, countdown }: Props) {
+  const { t } = useI18n();
   return (
     <section className="hero-gradient rounded-2xl p-5 text-primary-foreground shadow-[var(--shadow-soft)]">
       <div className="flex flex-wrap items-end justify-between gap-3">
@@ -19,12 +21,14 @@ export function PrayerStrip({ slots, next, locationName, countdown }: Props) {
             <MapPin className="h-3.5 w-3.5" /> {locationName}
           </p>
           <h2 className="font-display text-2xl font-semibold">
-            {next ? `${next.label} um ${fmt(next.start, "HH:mm")}` : "Gebetszeiten"}
+            {next
+              ? t("prayer.at", { name: next.label, time: fmt(next.start, "HH:mm") })
+              : t("prayer.times")}
           </h2>
         </div>
         {next && (
           <p className="text-sm opacity-90">
-            in <span className="font-semibold">{countdown}</span>
+            {t("prayer.in")} <span className="font-semibold">{countdown}</span>
           </p>
         )}
       </div>

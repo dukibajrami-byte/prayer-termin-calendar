@@ -1,6 +1,7 @@
 import { useMemo, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { fmt, minutesOfDay, sameDay } from "@/lib/dates";
+import { useI18n } from "@/lib/i18n";
 import type { PrayerConfig, PrayerSlot } from "@/lib/prayer";
 import { getPrayerSlots } from "@/lib/prayer";
 import type { CalEvent, SharedCalendar } from "@/lib/store";
@@ -26,6 +27,7 @@ export function TimeGrid({
   onSelect,
   conflictIds,
 }: Props) {
+  const { t } = useI18n();
   const scrollRef = useRef<HTMLDivElement>(null);
   const now = new Date();
 
@@ -86,7 +88,7 @@ export function TimeGrid({
                   <button
                     key={h}
                     type="button"
-                    aria-label={`Termin am ${fmt(day, "d. MMMM")} um ${h}:00 anlegen`}
+                    aria-label={t("grid.createAria", { date: fmt(day, "d MMMM"), hour: h })}
                     onClick={() => {
                       const d = new Date(day);
                       d.setHours(h, 0, 0, 0);

@@ -27,7 +27,7 @@ export const METHODS = {
   Singapore: "Singapore",
   Turkey: "Diyanet (Turkey)",
   Tehran: "Tehran",
-  NorthAmerica: "ISNA (Nordamerika)",
+  NorthAmerica: "ISNA (North America)",
   MoonsightingCommittee: "Moonsighting Committee",
 } as const;
 
