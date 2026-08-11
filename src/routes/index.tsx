@@ -22,6 +22,10 @@ import {
 import { LANGS, useI18n, type Lang } from "@/lib/i18n";
 import { AUTO_LOCATION, resolveLocationName } from "@/lib/location";
 import { InstallButton } from "@/components/InstallButton";
+import { Link } from "@tanstack/react-router";
+import { Crown } from "lucide-react";
+import { useSubscription } from "@/hooks/useSubscription";
+import { FREE_REMINDER_LIMIT } from "@/lib/premium";
 import {
   DEFAULT_CALENDARS,
   DEFAULT_SETTINGS,
@@ -57,6 +61,7 @@ function Index() {
   const { t, lang, setLang } = useI18n();
   const [settings, setSettings] = useLocalState<Settings>("mtk.settings", DEFAULT_SETTINGS);
   const { events, upsert, remove } = useEvents();
+  const { isPremium } = useSubscription();
   const [view, setView] = useState<ViewMode>("week");
   const [cursor, setCursor] = useState(() => startOfDay(new Date()));
   const [draft, setDraft] = useState<CalEvent | null>(null);
@@ -192,6 +197,25 @@ function Index() {
   };
 
   const days = view === "day" ? [cursor] : weekDays(cursor);
+
+  const saveEvent = (event: CalEvent) => {
+    if (!isPremium && event.reminderMinutes >= 0) {
+      const used = events.filter((e) => e.id !== event.id && e.reminderMinutes >= 0).length;
+      if (used >= FREE_REMINDER_LIMIT) {
+        toast.error(t("premium.reminderLimit", { n: FREE_REMINDER_LIMIT }), {
+          action: {
+            label: t("premium.upgrade"),
+            onClick: () => {
+              window.location.href = "/premium";
+            },
+          },
+        });
+        upsert({ ...event, reminderMinutes: -1 });
+        return;
+      }
+    }
+    upsert(event);
+  };
   const rangeLabel =
     view === "month"
       ? fmt(cursor, "MMMM yyyy")
@@ -235,6 +259,11 @@ function Index() {
               <Settings2 className="mr-1 h-4 w-4" /> {t("nav.settings")}
             </Button>
             <InstallButton />
+            <Button variant="outline" size="sm" asChild>
+              <Link to="/premium">
+                <Crown className="mr-1 h-4 w-4" /> {t("premium.nav")}
+              </Link>
+            </Button>
             <Button
               size="sm"
               onClick={() => {
@@ -343,7 +372,7 @@ function Index() {
         draft={draft}
         calendars={DEFAULT_CALENDARS}
         config={config}
-        onSave={upsert}
+        onSave={saveEvent}
         onDelete={remove}
       />
       <SettingsDialog
