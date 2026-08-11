@@ -14,6 +14,121 @@ export type Database = {
   }
   public: {
     Tables: {
+      calendar_members: {
+        Row: {
+          calendar_id: string
+          created_at: string | null
+          id: string
+          invited_email: string | null
+          role: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          calendar_id: string
+          created_at?: string | null
+          id?: string
+          invited_email?: string | null
+          role?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          calendar_id?: string
+          created_at?: string | null
+          id?: string
+          invited_email?: string | null
+          role?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_members_calendar_id_fkey"
+            columns: ["calendar_id"]
+            isOneToOne: false
+            referencedRelation: "calendars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      calendars: {
+        Row: {
+          color: string
+          created_at: string | null
+          id: string
+          kind: string
+          name: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          color: string
+          created_at?: string | null
+          id?: string
+          kind?: string
+          name: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          color?: string
+          created_at?: string | null
+          id?: string
+          kind?: string
+          name?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      events: {
+        Row: {
+          calendar_id: string
+          created_at: string | null
+          end: string
+          id: string
+          notes: string | null
+          reminder_minutes: number | null
+          start: string
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          calendar_id: string
+          created_at?: string | null
+          end: string
+          id?: string
+          notes?: string | null
+          reminder_minutes?: number | null
+          start: string
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          calendar_id?: string
+          created_at?: string | null
+          end?: string
+          id?: string
+          notes?: string | null
+          reminder_minutes?: number | null
+          start?: string
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_calendar_id_fkey"
+            columns: ["calendar_id"]
+            isOneToOne: false
+            referencedRelation: "calendars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscriptions: {
         Row: {
           cancel_at_period_end: boolean | null
