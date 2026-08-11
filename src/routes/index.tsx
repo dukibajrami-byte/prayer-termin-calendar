@@ -242,7 +242,7 @@ function Index() {
         <header className="flex flex-wrap items-center justify-between gap-3 px-4 sm:px-0">
           <div>
             <h1 className="font-display text-2xl font-semibold text-foreground">
-              {t("app.title")}
+              {t("app.headline")}
             </h1>
             <p className="text-sm text-muted-foreground">
               {t("app.subtitle")}
@@ -334,6 +334,8 @@ function Index() {
             </TabsList>
           </Tabs>
         </div>
+
+        <h2 className="sr-only">{t("section.calendar")}</h2>
 
         {!hydrated ? (
           <div className="h-[480px] animate-pulse rounded-xl bg-secondary" />
