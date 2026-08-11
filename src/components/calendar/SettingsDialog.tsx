@@ -1,4 +1,5 @@
 import { LocateFixed } from "lucide-react";
+import { resolveLocationName } from "@/lib/location";
 import {
   Dialog,
   DialogContent,
