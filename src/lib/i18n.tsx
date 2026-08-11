@@ -405,7 +405,7 @@ const sq: Dict = {
   "auth.google": "Vazhdo me Google",
   "auth.email": "Email",
   "auth.password": "Fjalëkalimi",
-  "auth.toSignUp": "S"ke llogari? Regjistrohu",
+  "auth.toSignUp": "Nuk ke llogari? Regjistrohu",
   "auth.toSignIn": "Ke llogari? Hyr",
   "auth.checkEmail": "Të lutem konfirmo email-in tënd.",
   "auth.backToCalendar": "Kthehu te kalendari",
