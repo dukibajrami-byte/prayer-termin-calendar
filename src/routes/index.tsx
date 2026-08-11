@@ -197,6 +197,25 @@ function Index() {
   };
 
   const days = view === "day" ? [cursor] : weekDays(cursor);
+
+  const saveEvent = (event: CalEvent) => {
+    if (!isPremium && event.reminderMinutes >= 0) {
+      const used = events.filter((e) => e.id !== event.id && e.reminderMinutes >= 0).length;
+      if (used >= FREE_REMINDER_LIMIT) {
+        toast.error(t("premium.reminderLimit", { n: FREE_REMINDER_LIMIT }), {
+          action: {
+            label: t("premium.upgrade"),
+            onClick: () => {
+              window.location.href = "/premium";
+            },
+          },
+        });
+        upsert({ ...event, reminderMinutes: -1 });
+        return;
+      }
+    }
+    upsert(event);
+  };
   const rangeLabel =
     view === "month"
       ? fmt(cursor, "MMMM yyyy")
@@ -353,7 +372,7 @@ function Index() {
         draft={draft}
         calendars={DEFAULT_CALENDARS}
         config={config}
-        onSave={upsert}
+        onSave={saveEvent}
         onDelete={remove}
       />
       <SettingsDialog
