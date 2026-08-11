@@ -245,12 +245,16 @@ function Index() {
           </div>
         </header>
 
-        <PrayerStrip
-          slots={todaySlots}
-          next={upcoming}
-          locationName={settings.locationName}
-          countdown={countdown}
-        />
+        {!hydrated ? (
+          <div className="h-40 animate-pulse rounded-2xl bg-secondary" />
+        ) : (
+          <PrayerStrip
+            slots={todaySlots}
+            next={upcoming}
+            locationName={settings.locationName}
+            countdown={countdown}
+          />
+        )}
 
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-1">
@@ -260,7 +264,7 @@ function Index() {
             <Button variant="ghost" size="icon" aria-label={t("nav.next")} onClick={() => step(1)}>
               <ChevronRight className="h-4 w-4" />
             </Button>
-            <span className="ml-2 font-display text-lg">{rangeLabel}</span>
+            <span className="ml-2 font-display text-lg">{hydrated ? rangeLabel : ""}</span>
             <Button
               variant="link"
               size="sm"
@@ -278,7 +282,9 @@ function Index() {
           </Tabs>
         </div>
 
-        {view === "month" ? (
+        {!hydrated ? (
+          <div className="h-[480px] animate-pulse rounded-xl bg-secondary" />
+        ) : view === "month" ? (
           <MonthView
             month={cursor}
             events={events}
