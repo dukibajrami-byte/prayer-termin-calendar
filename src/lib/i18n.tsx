@@ -362,8 +362,18 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 }
 
+const fallbackT: Translate = (key, vars) => {
+  const raw = DICTS.de[key] ?? DICTS.en[key] ?? key;
+  return vars ? raw.replace(/\{(\w+)\}/g, (_, k: string) => String(vars[k] ?? `{${k}}`)) : raw;
+};
+
+const FALLBACK: Ctx = {
+  lang: "de",
+  setLang: () => {},
+  t: fallbackT,
+  dir: "ltr",
+};
+
 export function useI18n() {
-  const ctx = useContext(I18nContext);
-  if (!ctx) throw new Error("useI18n must be used within I18nProvider");
-  return ctx;
+  return useContext(I18nContext) ?? FALLBACK;
 }
