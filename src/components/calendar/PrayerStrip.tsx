@@ -22,7 +22,7 @@ export function PrayerStrip({ slots, next, locationName, countdown }: Props) {
           </p>
           <h2 className="font-display text-2xl font-semibold">
             {next
-              ? t("prayer.at", { name: next.label, time: fmt(next.start, "HH:mm") })
+              ? t("prayer.at", { name: t(`prayer.${next.name}`), time: fmt(next.start, "HH:mm") })
               : t("prayer.times")}
           </h2>
         </div>
@@ -42,7 +42,7 @@ export function PrayerStrip({ slots, next, locationName, countdown }: Props) {
               next?.name === p.name ? "bg-primary-foreground/20" : "bg-primary-foreground/8",
             )}
           >
-            <div className="text-[11px] uppercase tracking-wide opacity-80">{p.label}</div>
+            <div className="text-[11px] uppercase tracking-wide opacity-80">{t(`prayer.${p.name}`)}</div>
             <div className="font-display text-base font-semibold">{fmt(p.start, "HH:mm")}</div>
           </div>
         ))}

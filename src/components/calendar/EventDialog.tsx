@@ -170,7 +170,7 @@ export function EventDialog({
                   <ul className="text-muted-foreground">
                     {conflicts.map((c) => (
                       <li key={c.name + c.start.toISOString()}>
-                        {c.label}: {fmt(c.start, "HH:mm")}–{fmt(c.end, "HH:mm")}
+                        {t(`prayer.${c.name}`)}: {fmt(c.start, "HH:mm")}–{fmt(c.end, "HH:mm")}
                       </li>
                     ))}
                   </ul>

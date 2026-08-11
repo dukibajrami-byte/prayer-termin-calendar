@@ -112,7 +112,7 @@ export function TimeGrid({
                       style={{ top, height }}
                     >
                       <span className="text-[10px] font-semibold uppercase tracking-wide text-prayer-foreground">
-                        {p.label} · {fmt(p.start, "HH:mm")}
+                        {t(`prayer.${p.name}`)} · {fmt(p.start, "HH:mm")}
                       </span>
                     </div>
                   );

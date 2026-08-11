@@ -161,7 +161,7 @@ function Index() {
       if (!notified.current.has(key) && at <= now.getTime() && now.getTime() - at < 120_000) {
         notified.current.add(key);
         fire(
-          t("notif.prayerSoon", { label: upcoming.label }),
+          t("notif.prayerSoon", { label: t(`prayer.${upcoming.name}`) }),
           t("notif.prayerBody", { time: fmt(upcoming.start, "HH:mm") }),
         );
       }

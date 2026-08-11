@@ -13,6 +13,11 @@ export type Lang = keyof typeof LANGS;
 type Dict = Record<string, string>;
 
 const de: Dict = {
+  "prayer.fajr": "Fajr",
+  "prayer.dhuhr": "Dhuhr",
+  "prayer.asr": "Asr",
+  "prayer.maghrib": "Maghrib",
+  "prayer.isha": "Isha",
   "app.title": "Muslimischer Terminkalender",
   "app.subtitle": "Termine planen – im Einklang mit den Gebetszeiten.",
   "nav.settings": "Einstellungen",
@@ -80,6 +85,11 @@ const de: Dict = {
 };
 
 const en: Dict = {
+  "prayer.fajr": "Fajr",
+  "prayer.dhuhr": "Dhuhr",
+  "prayer.asr": "Asr",
+  "prayer.maghrib": "Maghrib",
+  "prayer.isha": "Isha",
   "app.title": "Muslim Calendar & Planner",
   "app.subtitle": "Plan your schedule in harmony with prayer times.",
   "nav.settings": "Settings",
@@ -147,6 +157,11 @@ const en: Dict = {
 };
 
 const ar: Dict = {
+  "prayer.fajr": "الفجر",
+  "prayer.dhuhr": "الظهر",
+  "prayer.asr": "العصر",
+  "prayer.maghrib": "المغرب",
+  "prayer.isha": "العشاء",
   "app.title": "تقويم ومنظّم مواعيد المسلم",
   "app.subtitle": "خطّط مواعيدك بما ينسجم مع أوقات الصلاة.",
   "nav.settings": "الإعدادات",
@@ -214,6 +229,11 @@ const ar: Dict = {
 };
 
 const sq: Dict = {
+  "prayer.fajr": "Sabahu",
+  "prayer.dhuhr": "Dreka",
+  "prayer.asr": "Ikindia",
+  "prayer.maghrib": "Akshami",
+  "prayer.isha": "Jacia",
   "app.title": "Kalendari mysliman i takimeve",
   "app.subtitle": "Planifiko takimet në harmoni me kohët e namazit.",
   "nav.settings": "Cilësimet",
