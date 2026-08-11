@@ -242,7 +242,7 @@ function Index() {
         <header className="flex flex-wrap items-center justify-between gap-3 px-4 sm:px-0">
           <div>
             <h1 className="font-display text-2xl font-semibold text-foreground">
-              {t("app.title")}
+              {t("app.headline")}
             </h1>
             <p className="text-sm text-muted-foreground">
               {t("app.subtitle")}
