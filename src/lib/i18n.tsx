@@ -297,6 +297,7 @@ const STORAGE_KEY = "mtk.lang";
 
 export function I18nProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<Lang>("de");
+  setDateLocale(lang);
 
   useEffect(() => {
     const stored = window.localStorage.getItem(STORAGE_KEY) as Lang | null;

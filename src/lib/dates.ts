@@ -1,10 +1,21 @@
-import { de } from "date-fns/locale";
+import { de, enUS, arSA, sq } from "date-fns/locale";
+import type { Locale } from "date-fns";
 import { addDays, format, startOfWeek } from "date-fns";
 
-export const locale = de;
+const LOCALES: Record<string, Locale> = { de, en: enUS, ar: arSA, sq };
+
+let current: Locale = de;
+
+export function setDateLocale(lang: string) {
+  current = LOCALES[lang] ?? enUS;
+}
+
+export function getDateLocale() {
+  return current;
+}
 
 export function fmt(date: Date, pattern: string) {
-  return format(date, pattern, { locale: de });
+  return format(date, pattern, { locale: current });
 }
 
 export function weekDays(date: Date) {
