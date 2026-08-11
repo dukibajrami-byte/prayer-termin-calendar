@@ -10,11 +10,23 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as PremiumRouteImport } from './routes/premium'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PremiumRoute = PremiumRouteImport.update({
+  id: '/premium',
+  path: '/premium',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicPaymentsWebhookRoute =
@@ -26,27 +38,35 @@ const ApiPublicPaymentsWebhookRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/premium': typeof PremiumRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/premium': typeof PremiumRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/premium': typeof PremiumRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/public/payments/webhook'
+  fullPaths: '/' | '/auth' | '/premium' | '/api/public/payments/webhook'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/public/payments/webhook'
-  id: '__root__' | '/' | '/api/public/payments/webhook'
+  to: '/' | '/auth' | '/premium' | '/api/public/payments/webhook'
+  id: '__root__' | '/' | '/auth' | '/premium' | '/api/public/payments/webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthRoute: typeof AuthRoute
+  PremiumRoute: typeof PremiumRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
 
@@ -57,6 +77,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/premium': {
+      id: '/premium'
+      path: '/premium'
+      fullPath: '/premium'
+      preLoaderRoute: typeof PremiumRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/payments/webhook': {
@@ -71,6 +105,8 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthRoute: AuthRoute,
+  PremiumRoute: PremiumRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
 export const routeTree = rootRouteImport
