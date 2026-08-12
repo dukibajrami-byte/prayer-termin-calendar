@@ -89,7 +89,7 @@ export function MonthView({
                     className="block truncate rounded bg-accent/20 px-1 py-0.5 text-[9px] font-medium text-accent-foreground"
                     title={t(`holiday.${h}`)}
                   >
-                    ✨ {t(`holiday.${h}`)}
+                    {t(`holiday.${h}`)}
                   </span>
                 ))}
                 {dayEvents.slice(0, 3).map((e) => {
