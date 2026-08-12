@@ -157,14 +157,6 @@ function Index() {
 
   const nextHolidays = useMemo(() => upcomingHolidays(now).slice(0, 4), [now]);
 
-  const unusedConflictIds = useMemo(() => {
-    const set = new Set<string>();
-    for (const e of events) {
-      if (collidingPrayers(new Date(e.start), new Date(e.end), config).length > 0) set.add(e.id);
-    }
-    return set;
-  }, [events, config]);
-
   // Erinnerungen für Termine und Gebete
   useEffect(() => {
     const fire = (msg: string, description: string) => {
