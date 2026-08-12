@@ -38,8 +38,8 @@ export function TimeGrid({
   );
 
   return (
-    <div className="surface overflow-hidden">
-      <div className="grid border-b border-border" style={{ gridTemplateColumns: `56px repeat(${days.length}, minmax(0,1fr))` }}>
+    <div className="surface w-full overflow-hidden [--gutter:44px] sm:[--gutter:56px]">
+      <div className="grid border-b border-border" style={{ gridTemplateColumns: `var(--gutter) repeat(${days.length}, minmax(0,1fr))` }}>
         <div />
         {days.map((d) => (
           <div
@@ -76,7 +76,7 @@ export function TimeGrid({
       <div ref={scrollRef} className="max-h-[62vh] overflow-y-auto">
         <div
           className="relative grid"
-          style={{ gridTemplateColumns: `56px repeat(${days.length}, minmax(0,1fr))` }}
+          style={{ gridTemplateColumns: `var(--gutter) repeat(${days.length}, minmax(0,1fr))` }}
         >
           <div className="relative">
             {Array.from({ length: 24 }, (_, h) => (

@@ -40,7 +40,7 @@ export function MonthView({
   const today = new Date();
 
   return (
-    <div className="surface overflow-hidden">
+    <div className="surface w-full overflow-hidden">
       <div className="grid grid-cols-7 border-b border-border">
         {Array.from({ length: 7 }, (_, i) => (
           <div
