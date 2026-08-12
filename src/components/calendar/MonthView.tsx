@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { fmt, sameDay } from "@/lib/dates";
 import { useI18n } from "@/lib/i18n";
 import { getPrayerSlots, type PrayerConfig } from "@/lib/prayer";
+import { holidaysOn } from "@/lib/holidays";
 import type { CalEvent, SharedCalendar } from "@/lib/store";
 
 interface Props {
@@ -56,6 +57,7 @@ export function MonthView({
             .filter((e) => sameDay(new Date(e.start), day))
             .sort((a, b) => a.start.localeCompare(b.start));
           const slots = getPrayerSlots(day, config);
+          const holidays = holidaysOn(day);
           return (
             <button
               key={day.toISOString()}
@@ -81,6 +83,15 @@ export function MonthView({
                 </span>
               </div>
               <div className="mt-1 space-y-0.5">
+                {holidays.map((h) => (
+                  <span
+                    key={h}
+                    className="block truncate rounded bg-accent/20 px-1 py-0.5 text-[9px] font-medium text-accent-foreground"
+                    title={t(`holiday.${h}`)}
+                  >
+                    ✨ {t(`holiday.${h}`)}
+                  </span>
+                ))}
                 {dayEvents.slice(0, 3).map((e) => {
                   const cal = calendars.find((c) => c.id === e.calendarId);
                   return (
