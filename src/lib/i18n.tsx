@@ -13,6 +13,20 @@ export type Lang = keyof typeof LANGS;
 type Dict = Record<string, string>;
 
 const de: Dict = {
+  "holidays.title": "Islamische Feiertage",
+  "holidays.next": "Nächste Feiertage",
+  "holiday.newYear": "Islamisches Neujahr",
+  "holiday.ashura": "Aschura",
+  "holiday.mawlid": "Mawlid an-Nabi",
+  "holiday.isra": "Isra & Miradsch",
+  "holiday.baraah": "Laylat al-Bara'a",
+  "holiday.ramadanStart": "Ramadan-Beginn",
+  "holiday.laylatQadr": "Laylat al-Qadr",
+  "holiday.eidFitr": "Eid al-Fitr",
+  "holiday.arafah": "Tag von Arafat",
+  "holiday.eidAdha": "Eid al-Adha",
+  "legend.holiday": "Feiertag",
+  "holidays.note": "Termine nach Umm al-Qura, lokale Sichtung kann abweichen.",
   "prayer.fajr": "Fajr",
   "prayer.dhuhr": "Dhuhr",
   "prayer.asr": "Asr",
@@ -142,6 +156,20 @@ const de: Dict = {
 
 
 const en: Dict = {
+  "holidays.title": "Islamic holidays",
+  "holidays.next": "Upcoming holidays",
+  "holiday.newYear": "Islamic New Year",
+  "holiday.ashura": "Ashura",
+  "holiday.mawlid": "Mawlid an-Nabi",
+  "holiday.isra": "Isra & Mi'raj",
+  "holiday.baraah": "Laylat al-Bara'ah",
+  "holiday.ramadanStart": "Start of Ramadan",
+  "holiday.laylatQadr": "Laylat al-Qadr",
+  "holiday.eidFitr": "Eid al-Fitr",
+  "holiday.arafah": "Day of Arafah",
+  "holiday.eidAdha": "Eid al-Adha",
+  "legend.holiday": "Holiday",
+  "holidays.note": "Dates per Umm al-Qura; local moon sighting may differ.",
   "prayer.fajr": "Fajr",
   "prayer.dhuhr": "Dhuhr",
   "prayer.asr": "Asr",
@@ -271,6 +299,20 @@ const en: Dict = {
 
 
 const ar: Dict = {
+  "holidays.title": "الأعياد الإسلامية",
+  "holidays.next": "الأعياد القادمة",
+  "holiday.newYear": "رأس السنة الهجرية",
+  "holiday.ashura": "عاشوراء",
+  "holiday.mawlid": "المولد النبوي",
+  "holiday.isra": "الإسراء والمعراج",
+  "holiday.baraah": "ليلة البراءة",
+  "holiday.ramadanStart": "بداية رمضان",
+  "holiday.laylatQadr": "ليلة القدر",
+  "holiday.eidFitr": "عيد الفطر",
+  "holiday.arafah": "يوم عرفة",
+  "holiday.eidAdha": "عيد الأضحى",
+  "legend.holiday": "عيد",
+  "holidays.note": "التواريخ وفق أم القرى وقد تختلف حسب الرؤية المحلية.",
   "prayer.fajr": "الفجر",
   "prayer.dhuhr": "الظهر",
   "prayer.asr": "العصر",
@@ -400,6 +442,20 @@ const ar: Dict = {
 
 
 const sq: Dict = {
+  "holidays.title": "Festat islame",
+  "holidays.next": "Festat e ardhshme",
+  "holiday.newYear": "Viti i Ri Islam",
+  "holiday.ashura": "Ashura",
+  "holiday.mawlid": "Mevludi",
+  "holiday.isra": "Israja dhe Miraxhi",
+  "holiday.baraah": "Nata e Beraetit",
+  "holiday.ramadanStart": "Fillimi i Ramazanit",
+  "holiday.laylatQadr": "Nata e Kadrit",
+  "holiday.eidFitr": "Fitër Bajrami",
+  "holiday.arafah": "Dita e Arafatit",
+  "holiday.eidAdha": "Kurban Bajrami",
+  "legend.holiday": "Festë",
+  "holidays.note": "Datat sipas Umm al-Qura; shikimi lokal i hënës mund të ndryshojë.",
   "prayer.fajr": "Sabahu",
   "prayer.dhuhr": "Dreka",
   "prayer.asr": "Ikindia",
