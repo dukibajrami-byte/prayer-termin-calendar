@@ -4,6 +4,7 @@ import { fmt, minutesOfDay, sameDay } from "@/lib/dates";
 import { useI18n } from "@/lib/i18n";
 import type { PrayerConfig, PrayerSlot } from "@/lib/prayer";
 import { getPrayerSlots } from "@/lib/prayer";
+import { holidaysOn } from "@/lib/holidays";
 import type { CalEvent, SharedCalendar } from "@/lib/store";
 
 const HOUR_HEIGHT = 56;
@@ -37,8 +38,8 @@ export function TimeGrid({
   );
 
   return (
-    <div className="surface overflow-hidden">
-      <div className="grid border-b border-border" style={{ gridTemplateColumns: `56px repeat(${days.length}, minmax(0,1fr))` }}>
+    <div className="surface w-full overflow-hidden [--gutter:44px] sm:[--gutter:56px]">
+      <div className="grid border-b border-border" style={{ gridTemplateColumns: `var(--gutter) repeat(${days.length}, minmax(0,1fr))` }}>
         <div />
         {days.map((d) => (
           <div
@@ -59,6 +60,15 @@ export function TimeGrid({
             >
               {fmt(d, "d")}
             </div>
+            {holidaysOn(d).map((h) => (
+              <div
+                key={h}
+                title={t(`holiday.${h}`)}
+                className="mx-auto mt-0.5 max-w-full truncate rounded bg-accent/20 px-1 text-[9px] font-medium text-accent-foreground"
+              >
+                ✨ {days.length === 1 ? t(`holiday.${h}`) : t(`holiday.${h}`)}
+              </div>
+            ))}
           </div>
         ))}
       </div>
@@ -66,7 +76,7 @@ export function TimeGrid({
       <div ref={scrollRef} className="max-h-[62vh] overflow-y-auto">
         <div
           className="relative grid"
-          style={{ gridTemplateColumns: `56px repeat(${days.length}, minmax(0,1fr))` }}
+          style={{ gridTemplateColumns: `var(--gutter) repeat(${days.length}, minmax(0,1fr))` }}
         >
           <div className="relative">
             {Array.from({ length: 24 }, (_, h) => (

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { addDays, addMonths, startOfDay } from "date-fns";
-import { CalendarPlus, CalendarDays, ChevronLeft, ChevronRight, Crown, Settings2 } from "lucide-react";
+import { CalendarPlus, CalendarDays, ChevronLeft, ChevronRight, Crown, Settings2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,7 @@ import {
 } from "@/lib/prayer";
 import { LANGS, useI18n, type Lang } from "@/lib/i18n";
 import { AUTO_LOCATION, resolveLocationName } from "@/lib/location";
+import { hijriLabel, upcomingHolidays } from "@/lib/holidays";
 import { InstallButton } from "@/components/InstallButton";
 import { Link } from "@tanstack/react-router";
 import { useSubscription } from "@/hooks/useSubscription";
@@ -153,6 +154,8 @@ function Index() {
     }
     return set;
   }, [events, config]);
+
+  const nextHolidays = useMemo(() => upcomingHolidays(now).slice(0, 4), [now]);
 
   // Erinnerungen für Termine und Gebete
   useEffect(() => {
@@ -375,6 +378,7 @@ function Index() {
           <span className="flex items-center gap-1">
             <span className="h-3 w-4 rounded-sm bg-prayer/30 ring-1 ring-prayer/50" /> {t("legend.prayer")}
           </span>
+          <span className="flex items-center gap-1"><Sparkles className="h-3 w-3 text-accent" /> {t("legend.holiday")}</span>
           {calendars.map((c) => (
             <span key={c.id} className="flex items-center gap-1">
               <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: c.color }} />
@@ -383,6 +387,25 @@ function Index() {
           ))}
           <span className="flex items-center gap-1">⚠️ {t("legend.conflict")}</span>
         </div>
+
+        {hydrated && (
+          <section className="mx-4 rounded-2xl border border-border bg-card p-4 sm:mx-0">
+            <h2 className="font-display text-lg text-foreground">{t("holidays.title")}</h2>
+            <p className="text-xs text-muted-foreground">{hijriLabel(now)}</p>
+            <ul className="mt-3 space-y-2">
+              {nextHolidays.map(({ key, date }) => (
+                <li
+                  key={`${key}-${date.toDateString()}`}
+                  className="flex items-center justify-between gap-3 border-b border-border/60 pb-2 text-sm last:border-0 last:pb-0"
+                >
+                  <span className="flex min-w-0 items-center gap-2 font-medium"><Sparkles className="h-4 w-4 shrink-0 text-accent" /><span className="truncate">{t(`holiday.${key}`)}</span></span>
+                  <span className="shrink-0 text-muted-foreground">{fmt(date, "d. MMM yyyy")}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-3 text-[11px] text-muted-foreground">{t("holidays.note")}</p>
+          </section>
+        )}
       </div>
 
       <EventDialog
