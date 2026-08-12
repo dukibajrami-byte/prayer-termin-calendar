@@ -4,6 +4,7 @@ import { fmt, minutesOfDay, sameDay } from "@/lib/dates";
 import { useI18n } from "@/lib/i18n";
 import type { PrayerConfig, PrayerSlot } from "@/lib/prayer";
 import { getPrayerSlots } from "@/lib/prayer";
+import { holidaysOn } from "@/lib/holidays";
 import type { CalEvent, SharedCalendar } from "@/lib/store";
 
 const HOUR_HEIGHT = 56;
@@ -59,6 +60,15 @@ export function TimeGrid({
             >
               {fmt(d, "d")}
             </div>
+            {holidaysOn(d).map((h) => (
+              <div
+                key={h}
+                title={t(`holiday.${h}`)}
+                className="mx-auto mt-0.5 max-w-full truncate rounded bg-accent/20 px-1 text-[9px] font-medium text-accent-foreground"
+              >
+                ✨ {days.length === 1 ? t(`holiday.${h}`) : t(`holiday.${h}`)}
+              </div>
+            ))}
           </div>
         ))}
       </div>
