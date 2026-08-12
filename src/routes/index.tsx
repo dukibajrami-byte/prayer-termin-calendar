@@ -378,6 +378,7 @@ function Index() {
           <span className="flex items-center gap-1">
             <span className="h-3 w-4 rounded-sm bg-prayer/30 ring-1 ring-prayer/50" /> {t("legend.prayer")}
           </span>
+          <span className="flex items-center gap-1">✨ {t("legend.holiday")}</span>
           {calendars.map((c) => (
             <span key={c.id} className="flex items-center gap-1">
               <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: c.color }} />
@@ -386,6 +387,25 @@ function Index() {
           ))}
           <span className="flex items-center gap-1">⚠️ {t("legend.conflict")}</span>
         </div>
+
+        {hydrated && (
+          <section className="mx-4 rounded-2xl border border-border bg-card p-4 sm:mx-0">
+            <h2 className="font-display text-lg text-foreground">{t("holidays.title")}</h2>
+            <p className="text-xs text-muted-foreground">{hijriLabel(now)}</p>
+            <ul className="mt-3 space-y-2">
+              {nextHolidays.map(({ key, date }) => (
+                <li
+                  key={`${key}-${date.toDateString()}`}
+                  className="flex items-center justify-between gap-3 border-b border-border/60 pb-2 text-sm last:border-0 last:pb-0"
+                >
+                  <span className="min-w-0 truncate font-medium">✨ {t(`holiday.${key}`)}</span>
+                  <span className="shrink-0 text-muted-foreground">{fmt(date, "d. MMM yyyy")}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-3 text-[11px] text-muted-foreground">{t("holidays.note")}</p>
+          </section>
+        )}
       </div>
 
       <EventDialog
