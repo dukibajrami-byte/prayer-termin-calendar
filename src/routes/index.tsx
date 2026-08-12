@@ -22,6 +22,7 @@ import {
 } from "@/lib/prayer";
 import { LANGS, useI18n, type Lang } from "@/lib/i18n";
 import { AUTO_LOCATION, resolveLocationName } from "@/lib/location";
+import { hijriLabel, upcomingHolidays } from "@/lib/holidays";
 import { InstallButton } from "@/components/InstallButton";
 import { Link } from "@tanstack/react-router";
 import { useSubscription } from "@/hooks/useSubscription";
@@ -147,6 +148,16 @@ function Index() {
   }, [upcoming, now, t]);
 
   const conflictIds = useMemo(() => {
+    const set = new Set<string>();
+    for (const e of events) {
+      if (collidingPrayers(new Date(e.start), new Date(e.end), config).length > 0) set.add(e.id);
+    }
+    return set;
+  }, [events, config]);
+
+  const nextHolidays = useMemo(() => upcomingHolidays(now).slice(0, 4), [now]);
+
+  const unusedConflictIds = useMemo(() => {
     const set = new Set<string>();
     for (const e of events) {
       if (collidingPrayers(new Date(e.start), new Date(e.end), config).length > 0) set.add(e.id);
