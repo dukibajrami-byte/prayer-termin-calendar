@@ -251,48 +251,51 @@ function Index() {
               {t("app.subtitle")}
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="flex items-center rounded-md border border-border p-0.5">
-              {(Object.keys(LANGS) as Lang[]).map((code) => (
-                <button
-                  key={code}
-                  type="button"
-                  onClick={() => setLang(code)}
-                  aria-pressed={lang === code}
-                  className={
-                    "rounded px-2 py-1 text-xs font-medium uppercase transition-colors " +
-                    (lang === code
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:bg-secondary")
-                  }
-                >
-                  {code}
-                </button>
-              ))}
+          <div className="flex flex-col items-end gap-2 sm:flex-row sm:items-center">
+            <div className="flex items-center gap-2">
+              <div className="flex items-center rounded-md border border-border p-0.5">
+                {(Object.keys(LANGS) as Lang[]).map((code) => (
+                  <button
+                    key={code}
+                    type="button"
+                    onClick={() => setLang(code)}
+                    aria-pressed={lang === code}
+                    className={
+                      "rounded px-2 py-1 text-xs font-medium uppercase transition-colors " +
+                      (lang === code
+                        ? "bg-primary text-primary-foreground"
+                        : "text-muted-foreground hover:bg-secondary")
+                    }
+                  >
+                    {code}
+                  </button>
+                ))}
+              </div>
+              <Button variant="outline" size="sm" onClick={() => setSettingsOpen(true)}>
+                <Settings2 className="mr-1 h-4 w-4" /> {t("nav.settings")}
+              </Button>
+              <InstallButton />
+              <Button variant="outline" size="sm" asChild>
+                <Link to="/premium">
+                  <Crown className="mr-1 h-4 w-4" /> {t("premium.nav")}
+                </Link>
+              </Button>
             </div>
-            <Button variant="outline" size="sm" onClick={() => setSettingsOpen(true)}>
-              <Settings2 className="mr-1 h-4 w-4" /> {t("nav.settings")}
-            </Button>
-            <InstallButton />
-            <Button variant="outline" size="sm" asChild>
-              <Link to="/premium">
-                <Crown className="mr-1 h-4 w-4" /> {t("premium.nav")}
-              </Link>
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => setCalendarOpen(true)}>
-              <CalendarDays className="mr-1 h-4 w-4" /> {t("calendars.manage")}
-            </Button>
-            <Button
-              size="sm"
-              onClick={() => {
-                const start = new Date();
-                start.setMinutes(0, 0, 0);
-                openNew(start);
-              }}
-            >
-              <CalendarPlus className="mr-1 h-4 w-4" /> {t("nav.newEvent")}
-            </Button>
-
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={() => setCalendarOpen(true)}>
+                <CalendarDays className="mr-1 h-4 w-4" /> {t("calendars.manage")}
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => {
+                  const start = new Date();
+                  start.setMinutes(0, 0, 0);
+                  openNew(start);
+                }}
+              >
+                <CalendarPlus className="mr-1 h-4 w-4" /> {t("nav.newEvent")}
+              </Button>
+            </div>
           </div>
         </header>
 
