@@ -1,0 +1,246 @@
+import { useMemo, useState } from "react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { CalendarDays, Check, Crown, ListTodo, Plus, Star, Trash2 } from "lucide-react";
+import { toast } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useI18n } from "@/lib/i18n";
+import { useSubscription } from "@/hooks/useSubscription";
+import { useTodos, type Todo } from "@/hooks/useTodos";
+import { FREE_TODO_LIMIT } from "@/lib/premium";
+import { fmt } from "@/lib/dates";
+
+export const Route = createFileRoute("/todo")({
+  ssr: false,
+  head: () => ({
+    meta: [
+      { title: "To-Do Notizen – Muslimtermin Kalender" },
+      {
+        name: "description",
+        content:
+          "Aufgabenliste für Muslime: To-Do-Notizen mit Fälligkeitsdatum, Wichtig-Markierung und Notizen – passend zum Kalender mit Gebetszeiten.",
+      },
+      { property: "og:title", content: "To-Do Notizen – Muslimtermin" },
+      {
+        property: "og:description",
+        content: "Aufgaben festhalten, priorisieren und rund um die Gebetszeiten planen.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
+  component: TodoPage,
+});
+
+function TodoPage() {
+  const { t } = useI18n();
+  const { isPremium } = useSubscription();
+  const { todos, add, update, remove, clearDone, loaded } = useTodos();
+  const [title, setTitle] = useState("");
+  const [openId, setOpenId] = useState<string | null>(null);
+
+  const open = useMemo(
+    () =>
+      todos
+        .filter((x) => !x.done)
+        .sort((a, b) => Number(b.important) - Number(a.important) || (a.due ?? "9").localeCompare(b.due ?? "9")),
+    [todos],
+  );
+  const done = useMemo(() => todos.filter((x) => x.done), [todos]);
+
+  const submit = () => {
+    const value = title.trim();
+    if (!value) return;
+    if (!isPremium && todos.length >= FREE_TODO_LIMIT) {
+      toast.error(t("todo.limit", { n: FREE_TODO_LIMIT }), {
+        action: { label: t("premium.upgrade"), onClick: () => (window.location.href = "/premium") },
+      });
+      return;
+    }
+    add(value);
+    setTitle("");
+  };
+
+  return (
+    <main className="min-h-screen bg-background">
+      <Toaster />
+      <div className="mx-auto max-w-2xl space-y-5 px-4 py-8">
+        <header className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h1 className="flex items-center gap-2 font-display text-2xl font-semibold">
+              <ListTodo className="h-6 w-6 text-primary" /> {t("todo.title")}
+            </h1>
+            <p className="text-sm text-muted-foreground">{t("todo.subtitle")}</p>
+          </div>
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/">
+              <CalendarDays className="mr-1 h-4 w-4" /> {t("todo.back")}
+            </Link>
+          </Button>
+        </header>
+
+        {!isPremium && (
+          <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-primary/40 bg-primary/5 p-3 text-sm">
+            <span>{t("todo.premiumHint", { n: FREE_TODO_LIMIT })}</span>
+            <Button size="sm" asChild>
+              <Link to="/premium">
+                <Crown className="mr-1 h-4 w-4" /> {t("premium.upgrade")}
+              </Link>
+            </Button>
+          </div>
+        )}
+
+        <div className="flex gap-2">
+          <Input
+            value={title}
+            placeholder={t("todo.placeholder")}
+            onChange={(e) => setTitle(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && submit()}
+            aria-label={t("todo.add")}
+          />
+          <Button onClick={submit}>
+            <Plus className="mr-1 h-4 w-4" /> {t("todo.add")}
+          </Button>
+        </div>
+
+        {!loaded ? (
+          <div className="h-32 animate-pulse rounded-xl bg-secondary" />
+        ) : (
+          <section className="space-y-2">
+            <h2 className="text-xs font-medium uppercase text-muted-foreground">
+              {t("todo.openTasks")} ({open.length})
+            </h2>
+            {open.length === 0 && <p className="text-sm text-muted-foreground">{t("todo.empty")}</p>}
+            {open.map((item) => (
+              <Row
+                key={item.id}
+                item={item}
+                expanded={openId === item.id}
+                onToggleExpand={() => setOpenId(openId === item.id ? null : item.id)}
+                onUpdate={(patch) => update(item.id, patch)}
+                onRemove={() => remove(item.id)}
+              />
+            ))}
+          </section>
+        )}
+
+        {done.length > 0 && (
+          <section className="space-y-2">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xs font-medium uppercase text-muted-foreground">
+                {t("todo.done")} ({done.length})
+              </h2>
+              <Button variant="ghost" size="sm" onClick={clearDone}>
+                {t("todo.clearDone")}
+              </Button>
+            </div>
+            {done.map((item) => (
+              <Row
+                key={item.id}
+                item={item}
+                expanded={false}
+                onToggleExpand={() => undefined}
+                onUpdate={(patch) => update(item.id, patch)}
+                onRemove={() => remove(item.id)}
+              />
+            ))}
+          </section>
+        )}
+      </div>
+    </main>
+  );
+}
+
+function Row({
+  item,
+  expanded,
+  onToggleExpand,
+  onUpdate,
+  onRemove,
+}: {
+  item: Todo;
+  expanded: boolean;
+  onToggleExpand: () => void;
+  onUpdate: (patch: Partial<Todo>) => void;
+  onRemove: () => void;
+}) {
+  const { t } = useI18n();
+  const overdue =
+    !item.done && item.due ? new Date(item.due).setHours(23, 59, 59) < Date.now() : false;
+
+  return (
+    <div className="rounded-xl border border-border bg-card p-3">
+      <div className="flex items-start gap-3">
+        <Checkbox
+          checked={item.done}
+          onCheckedChange={(v) => onUpdate({ done: Boolean(v) })}
+          aria-label={t("todo.done")}
+          className="mt-0.5"
+        />
+        <button
+          type="button"
+          onClick={onToggleExpand}
+          className="min-w-0 flex-1 text-left"
+        >
+          <p className={"truncate text-sm " + (item.done ? "text-muted-foreground line-through" : "")}>
+            {item.title}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            {item.due ? (
+              <span className={overdue ? "text-destructive" : ""}>
+                {overdue ? t("todo.overdue") : t("todo.due")}: {fmt(new Date(item.due), "d. MMM yyyy")}
+              </span>
+            ) : (
+              t("todo.noDue")
+            )}
+            {item.notes ? " · " + item.notes.slice(0, 40) : ""}
+          </p>
+        </button>
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label={t("todo.important")}
+          onClick={() => onUpdate({ important: !item.important })}
+        >
+          <Star
+            className={"h-4 w-4 " + (item.important ? "fill-accent text-accent" : "text-muted-foreground")}
+          />
+        </Button>
+        <Button variant="ghost" size="icon" aria-label={t("todo.delete")} onClick={onRemove}>
+          <Trash2 className="h-4 w-4 text-destructive" />
+        </Button>
+      </div>
+
+      {expanded && (
+        <div className="mt-3 space-y-2 border-t border-border pt-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <Input
+              value={item.title}
+              onChange={(e) => onUpdate({ title: e.target.value })}
+              className="flex-1"
+            />
+            <Input
+              type="date"
+              value={item.due ?? ""}
+              onChange={(e) => onUpdate({ due: e.target.value || null })}
+              className="w-40"
+              aria-label={t("todo.due")}
+            />
+          </div>
+          <Textarea
+            rows={2}
+            value={item.notes ?? ""}
+            placeholder={t("todo.notesPlaceholder")}
+            onChange={(e) => onUpdate({ notes: e.target.value })}
+          />
+          <Button size="sm" variant="secondary" onClick={onToggleExpand}>
+            <Check className="mr-1 h-4 w-4" /> OK
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
