@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as PremiumRouteImport } from './routes/premium'
+import { Route as QiblaRouteImport } from './routes/qibla'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TodoRouteImport } from './routes/todo'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
@@ -29,6 +30,11 @@ const AuthRoute = AuthRouteImport.update({
 const PremiumRoute = PremiumRouteImport.update({
   id: '/premium',
   path: '/premium',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const QiblaRoute = QiblaRouteImport.update({
+  id: '/qibla',
+  path: '/qibla',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -52,6 +58,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/premium': typeof PremiumRoute
+  '/qibla': typeof QiblaRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/todo': typeof TodoRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -60,6 +67,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/premium': typeof PremiumRoute
+  '/qibla': typeof QiblaRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/todo': typeof TodoRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -69,6 +77,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/premium': typeof PremiumRoute
+  '/qibla': typeof QiblaRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/todo': typeof TodoRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -79,6 +88,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/premium'
+    | '/qibla'
     | '/sitemap.xml'
     | '/todo'
     | '/api/public/payments/webhook'
@@ -87,6 +97,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/premium'
+    | '/qibla'
     | '/sitemap.xml'
     | '/todo'
     | '/api/public/payments/webhook'
@@ -95,6 +106,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/premium'
+    | '/qibla'
     | '/sitemap.xml'
     | '/todo'
     | '/api/public/payments/webhook'
@@ -104,6 +116,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
   PremiumRoute: typeof PremiumRoute
+  QiblaRoute: typeof QiblaRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TodoRoute: typeof TodoRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
@@ -130,6 +143,13 @@ declare module '@tanstack/react-router' {
       path: '/premium'
       fullPath: '/premium'
       preLoaderRoute: typeof PremiumRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/qibla': {
+      id: '/qibla'
+      path: '/qibla'
+      fullPath: '/qibla'
+      preLoaderRoute: typeof QiblaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap.xml': {
@@ -160,6 +180,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
   PremiumRoute: PremiumRoute,
+  QiblaRoute: QiblaRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TodoRoute: TodoRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,

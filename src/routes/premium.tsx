@@ -65,6 +65,7 @@ function PremiumPage() {
     t("premium.f1"),
     t("premium.f2"),
     t("premium.f6"),
+    t("premium.f7"),
     t("premium.f4"),
     t("premium.f5"),
     t("premium.f3"),
