@@ -290,6 +290,11 @@ function Index() {
                   <ListTodo className="mr-1 h-4 w-4" /> {t("todo.nav")}
                 </Link>
               </Button>
+              <Button variant="outline" size="sm" asChild>
+                <Link to="/qibla">
+                  <Compass className="mr-1 h-4 w-4" /> {t("qibla.nav")}
+                </Link>
+              </Button>
               <Button
                 size="sm"
                 onClick={() => {
