@@ -15,3 +15,6 @@ export function isFreeMethod(method: MethodKey) {
 
 /** Premium-Feature: Cloud-Sync und geteilte Kalender für Familie/Moschee/Verein */
 export const CLOUD_FEATURES_REQUIRE_PREMIUM = true;
+
+/** Maximale Anzahl To-Do-Aufgaben im Gratis-Tarif */
+export const FREE_TODO_LIMIT = 5;

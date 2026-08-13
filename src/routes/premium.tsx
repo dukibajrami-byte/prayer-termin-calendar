@@ -61,7 +61,14 @@ function PremiumPage() {
     window.open(result.url, "_blank");
   };
 
-  const features = [t("premium.f1"), t("premium.f2"), t("premium.f3"), t("premium.f4"), t("premium.f5")];
+  const features = [
+    t("premium.f1"),
+    t("premium.f2"),
+    t("premium.f6"),
+    t("premium.f4"),
+    t("premium.f5"),
+    t("premium.f3"),
+  ];
 
   return (
     <main className="min-h-screen bg-background">
