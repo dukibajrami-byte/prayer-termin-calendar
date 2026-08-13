@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { addDays, addMonths, startOfDay } from "date-fns";
-import { CalendarPlus, CalendarDays, ChevronLeft, ChevronRight, Crown, Settings2, Sparkles } from "lucide-react";
+import { CalendarPlus, CalendarDays, ChevronLeft, ChevronRight, Crown, ListTodo, Settings2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
@@ -284,6 +284,11 @@ function Index() {
             <div className="flex items-center gap-2">
               <Button variant="outline" size="sm" onClick={() => setCalendarOpen(true)}>
                 <CalendarDays className="mr-1 h-4 w-4" /> {t("calendars.manage")}
+              </Button>
+              <Button variant="outline" size="sm" asChild>
+                <Link to="/todo">
+                  <ListTodo className="mr-1 h-4 w-4" /> {t("todo.nav")}
+                </Link>
               </Button>
               <Button
                 size="sm"
