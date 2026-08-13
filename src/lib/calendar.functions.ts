@@ -104,6 +104,17 @@ export const inviteMember = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: { calendarId: string; email: string; role?: string }) => data)
   .handler(async ({ data, context }): Promise<CalendarMemberRow> => {
+    // Verify the caller actually owns the target calendar BEFORE any admin lookup,
+    // otherwise this endpoint could be used to enumerate registered emails.
+    const { data: ownedCalendar, error: ownerError } = await context.supabase
+      .from("calendars")
+      .select("id")
+      .eq("id", data.calendarId)
+      .eq("user_id", context.userId)
+      .maybeSingle();
+    if (ownerError) throw ownerError;
+    if (!ownedCalendar) throw new Error("Calendar not found or access denied.");
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: list, error: userError } = await supabaseAdmin.auth.admin.listUsers();
     if (userError) throw userError;
