@@ -1,0 +1,1 @@
+GRANT EXECUTE ON FUNCTION public.is_calendar_member(uuid, uuid) TO authenticated, service_role;
