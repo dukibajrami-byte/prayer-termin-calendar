@@ -558,7 +558,7 @@ const sq: Dict = {
   "prayer.maghrib": "Akshami",
   "prayer.isha": "Jacia",
   "app.title": "Kalendari mysliman i takimeve",
-  "app.headline": "Kalendari mysliman i takimeve – Takimet dhe kohët e namazit",
+  "app.headline": "Kalendari mysliman & kohët e namazit",
   "section.calendar": "Kalendari me kohët e namazit",
   "app.subtitle": "Planifiko takimet në harmoni me kohët e namazit.",
   "nav.settings": "Cilësimet",
