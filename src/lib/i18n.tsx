@@ -35,7 +35,7 @@ const de: Dict = {
   "app.title": "Muslimischer Terminkalender",
   "app.headline": "Muslimischer Terminkalender & Gebetszeiten",
   "section.calendar": "Kalender mit Gebetszeiten",
-  "app.subtitle": "Termine planen – im Einklang mit den Gebetszeiten.",
+  "app.subtitle": "Termine planen im Einklang mit den Gebetszeiten.",
   "nav.settings": "Einstellungen",
   "nav.newEvent": "Termin",
   "nav.prev": "Zurück",
