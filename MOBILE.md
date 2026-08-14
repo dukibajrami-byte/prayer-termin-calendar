@@ -38,3 +38,27 @@ npx cap run ios       # benötigt macOS + Xcode
 
 App-ID: `com.muslimtermin.app` · App-Name: `Muslimischer Terminkalender`
 Icons liegen unter `public/icon-192.png` und `public/icon-512.png`.
+
+## Google-Login in der App (Deep Link)
+
+Google erlaubt OAuth nicht in eingebetteten WebViews. Die App öffnet die
+Anmeldung deshalb im System-Browser und bekommt die Sitzung über den Deep Link
+`com.muslimtermin.app://login-callback` zurück.
+
+Damit Android den Deep Link an die App liefert, muss in
+`android/app/src/main/AndroidManifest.xml` innerhalb der `MainActivity` dieser
+Intent-Filter ergänzt werden:
+
+```xml
+<intent-filter>
+  <action android:name="android.intent.action.VIEW" />
+  <category android:name="android.intent.category.DEFAULT" />
+  <category android:name="android.intent.category.BROWSABLE" />
+  <data android:scheme="com.muslimtermin.app" android:host="login-callback" />
+</intent-filter>
+```
+
+Für iOS in Xcode unter *Info > URL Types* ein URL-Schema
+`com.muslimtermin.app` eintragen.
+
+Danach `npx cap sync` ausführen. Der Web-Login bleibt unverändert.
