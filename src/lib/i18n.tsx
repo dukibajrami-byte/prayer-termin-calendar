@@ -37,7 +37,7 @@ const de: Dict = {
   "section.calendar": "Kalender mit Gebetszeiten",
   "app.subtitle": "Termine planen im Einklang mit den Gebetszeiten.",
   "nav.settings": "Einstellungen",
-  "nav.newEvent": "+ New",
+  "nav.newEvent": "+ Neu",
   "nav.prev": "Zurück",
   "nav.next": "Weiter",
   "nav.today": "Heute",
