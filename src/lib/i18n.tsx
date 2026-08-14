@@ -728,17 +728,14 @@ const I18nContext = createContext<Ctx | null>(null);
 const STORAGE_KEY = "mtk.lang";
 
 export function I18nProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState<Lang>("de");
+  const [lang, setLangState] = useState<Lang>("en");
   setDateLocale(lang);
 
   useEffect(() => {
     const stored = window.localStorage.getItem(STORAGE_KEY) as Lang | null;
     if (stored && stored in DICTS) {
       setLangState(stored);
-      return;
     }
-    const nav = window.navigator.language.slice(0, 2) as Lang;
-    if (nav in DICTS) setLangState(nav);
   }, []);
 
   useEffect(() => {
