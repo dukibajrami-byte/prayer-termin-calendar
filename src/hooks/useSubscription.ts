@@ -21,14 +21,22 @@ function isActive(row: SubscriptionRow | null) {
 export function useSubscription() {
   const { user, loading: authLoading } = useAuth();
   const [subscription, setSubscription] = useState<SubscriptionRow | null>(null);
+  const [hasGrant, setHasGrant] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const refetch = useCallback(async () => {
     if (!user) {
       setSubscription(null);
+      setHasGrant(false);
       setLoading(false);
       return;
     }
+    const { data: grant } = await supabase
+      .from("premium_grants")
+      .select("user_id")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    setHasGrant(Boolean(grant));
     const { data } = await supabase
       .from("subscriptions")
       .select("status, price_id, current_period_end, cancel_at_period_end")
@@ -63,7 +71,7 @@ export function useSubscription() {
 
   return {
     subscription,
-    isPremium: isActive(subscription),
+    isPremium: hasGrant || isActive(subscription),
     loading: loading || authLoading,
     refetch,
   };
