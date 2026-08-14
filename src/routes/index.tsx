@@ -43,7 +43,7 @@ import { useEvents } from "@/hooks/useEvents";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Muslimischer Terminkalender – Termine & Gebetszeiten" },
+      { title: "Muslimischer Terminkalender & Gebetszeiten" },
       {
         name: "description",
         content:
