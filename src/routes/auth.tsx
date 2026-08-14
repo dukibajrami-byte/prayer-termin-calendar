@@ -9,14 +9,22 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/hooks/useAuth";
+import {
+  handoffSessionToNativeApp,
+  isNativeApp,
+  startNativeSignIn,
+} from "@/lib/native-auth";
 
 export const Route = createFileRoute("/auth")({
   ssr: false,
-  validateSearch: (search: Record<string, unknown>): { next?: string | undefined } => ({
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { next?: string | undefined; native?: boolean | undefined } => ({
     next:
       typeof search["next"] === "string" && search["next"].startsWith("/")
         ? (search["next"] as string)
         : undefined,
+    native: search["native"] === "1" || search["native"] === true ? true : undefined,
   }),
   head: () => ({
     meta: [
@@ -41,8 +49,8 @@ export const Route = createFileRoute("/auth")({
 function AuthPage() {
   const { t } = useI18n();
   const navigate = useNavigate();
-  const { next } = Route.useSearch();
-  const { user, loading } = useAuth();
+  const { next, native } = Route.useSearch();
+  const { user, session, loading } = useAuth();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -50,8 +58,15 @@ function AuthPage() {
   const target = next ?? "/premium";
 
   useEffect(() => {
-    if (!loading && user) void navigate({ to: target });
-  }, [loading, user, navigate, target]);
+    if (loading || !user) return;
+    // Opened from the native app in the system browser: hand the session back
+    // to the app through the deep link instead of navigating here.
+    if (native && session) {
+      handoffSessionToNativeApp(session, target);
+      return;
+    }
+    void navigate({ to: target });
+  }, [loading, user, session, native, navigate, target]);
 
   const submit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
@@ -80,8 +95,13 @@ function AuthPage() {
   };
 
   const google = async () => {
+    if (isNativeApp()) {
+      await startNativeSignIn(target);
+      return;
+    }
+    const nativeParam = native ? "&native=1" : "";
     const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: `${window.location.origin}/auth?next=${encodeURIComponent(target)}`,
+      redirect_uri: `${window.location.origin}/auth?next=${encodeURIComponent(target)}${nativeParam}`,
     });
     if (result.error) {
       toast.error(String(result.error));
