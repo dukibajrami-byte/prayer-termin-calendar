@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as NativeAuthCallbackRouteImport } from './routes/native-auth-callback'
 import { Route as PremiumRouteImport } from './routes/premium'
 import { Route as QiblaRouteImport } from './routes/qibla'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
@@ -25,6 +26,11 @@ const IndexRoute = IndexRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NativeAuthCallbackRoute = NativeAuthCallbackRouteImport.update({
+  id: '/native-auth-callback',
+  path: '/native-auth-callback',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PremiumRoute = PremiumRouteImport.update({
@@ -57,6 +63,7 @@ const ApiPublicPaymentsWebhookRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/native-auth-callback': typeof NativeAuthCallbackRoute
   '/premium': typeof PremiumRoute
   '/qibla': typeof QiblaRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -66,6 +73,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/native-auth-callback': typeof NativeAuthCallbackRoute
   '/premium': typeof PremiumRoute
   '/qibla': typeof QiblaRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -76,6 +84,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/native-auth-callback': typeof NativeAuthCallbackRoute
   '/premium': typeof PremiumRoute
   '/qibla': typeof QiblaRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -87,6 +96,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/native-auth-callback'
     | '/premium'
     | '/qibla'
     | '/sitemap.xml'
@@ -96,6 +106,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/native-auth-callback'
     | '/premium'
     | '/qibla'
     | '/sitemap.xml'
@@ -105,6 +116,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/auth'
+    | '/native-auth-callback'
     | '/premium'
     | '/qibla'
     | '/sitemap.xml'
@@ -115,6 +127,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
+  NativeAuthCallbackRoute: typeof NativeAuthCallbackRoute
   PremiumRoute: typeof PremiumRoute
   QiblaRoute: typeof QiblaRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -136,6 +149,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/native-auth-callback': {
+      id: '/native-auth-callback'
+      path: '/native-auth-callback'
+      fullPath: '/native-auth-callback'
+      preLoaderRoute: typeof NativeAuthCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/premium': {
@@ -179,6 +199,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
+  NativeAuthCallbackRoute: NativeAuthCallbackRoute,
   PremiumRoute: PremiumRoute,
   QiblaRoute: QiblaRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,

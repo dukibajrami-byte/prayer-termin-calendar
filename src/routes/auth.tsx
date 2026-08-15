@@ -119,9 +119,13 @@ function AuthPage() {
       return;
     }
     if (nativeFlow) markNativeHandoffPending(target);
-    const nativeParam = nativeFlow ? "&native=1" : "";
+    // Native flow returns to a dedicated callback route that owns the deep-link
+    // handoff; the web flow keeps returning to /auth as before.
+    const redirectUri = nativeFlow
+      ? `${window.location.origin}/native-auth-callback?next=${encodeURIComponent(target)}`
+      : `${window.location.origin}/auth?next=${encodeURIComponent(target)}`;
     const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: `${window.location.origin}/auth?next=${encodeURIComponent(target)}${nativeParam}`,
+      redirect_uri: redirectUri,
     });
     if (result.error) {
       toast.error(String(result.error));
