@@ -69,9 +69,14 @@ export function useSubscription() {
     };
   }, [user, refetch]);
 
+  const isPremium = hasGrant || isActive(subscription);
+  const hasActiveSubscription = isActive(subscription);
+
   return {
     subscription,
-    isPremium: hasGrant || isActive(subscription),
+    hasGrant,
+    hasActiveSubscription,
+    isPremium,
     loading: loading || authLoading,
     refetch,
   };
