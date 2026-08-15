@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   clearPendingNativeHandoff,
   getPendingNativeHandoff,
-  handoffSessionToNativeApp,
+  buildNativeCallbackUrl,
   isNativeApp,
 } from "@/lib/native-auth";
 
@@ -21,13 +21,17 @@ export function useNativeOAuthHandoff(): string | null {
     if (!getPendingNativeHandoff()) return;
 
     let done = false;
-    const tryHandoff = (session: Parameters<typeof handoffSessionToNativeApp>[0] | null) => {
+    const tryHandoff = (session: Parameters<typeof buildNativeCallbackUrl>[0] | null) => {
       if (done || !session) return;
       const next = getPendingNativeHandoff();
       if (!next) return;
       done = true;
+      const url = buildNativeCallbackUrl(session, next);
+      // Make the "Return to app" fallback available *before* trying to launch
+      // the app, in case Chrome blocks the automatic navigation.
+      setReturnUrl(url);
       clearPendingNativeHandoff();
-      setReturnUrl(handoffSessionToNativeApp(session, next));
+      window.location.href = url;
     };
 
     void supabase.auth.getSession().then(({ data }) => tryHandoff(data.session));
