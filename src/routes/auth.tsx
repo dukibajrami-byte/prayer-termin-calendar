@@ -37,7 +37,10 @@ export const Route = createFileRoute("/auth")({
       typeof search["next"] === "string" && search["next"].startsWith("/")
         ? (search["next"] as string)
         : undefined,
-    native: search["native"] === "1" || search["native"] === true ? true : undefined,
+    native:
+      search["native"] === "1" || search["native"] === "true" || search["native"] === true
+        ? true
+        : undefined,
   }),
   head: () => ({
     meta: [
