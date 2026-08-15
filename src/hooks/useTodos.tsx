@@ -40,10 +40,9 @@ interface TodoRow {
 }
 
 function rowToTodo(row: TodoRow): Todo {
-  return {
+  const todo: Todo = {
     id: row.id,
     title: row.title,
-    notes: row.notes ?? undefined,
     due: row.due,
     dueTime: row.due_time,
     reminderMinutes: row.reminder_minutes ?? -1,
@@ -52,6 +51,8 @@ function rowToTodo(row: TodoRow): Todo {
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
+  if (row.notes !== null) todo.notes = row.notes;
+  return todo;
 }
 
 function todoToRow(todo: Todo, userId: string) {
@@ -218,7 +219,7 @@ function useTodosState(): TodosApi {
         return;
       }
       setCloud((prev) => prev.map((x) => (x.id === id ? { ...x, ...patch } : x)));
-      const row: Record<string, unknown> = {};
+      const row: Partial<TodoRow> = {};
       if (patch.title !== undefined) row["title"] = patch.title;
       if (patch.notes !== undefined) row["notes"] = patch.notes ?? null;
       if (patch.done !== undefined) row["done"] = patch.done;
