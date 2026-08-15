@@ -8,15 +8,19 @@ import type { CalEvent } from "@/lib/store";
 
 /**
  * Stabile, positive Notification-ID aus der Event-ID.
- * Bereich: 2_000_000_001 – 2_100_000_000 (innerhalb des Android 32-Bit-Int-Limits
- * von 2_147_483_647). To-Dos nutzen 1 – 1_999_999_999, also überschneidungsfrei.
+ * Bereich: 1_000_000_001 – 1_899_999_999 (klar unter dem Android-Limit).
+ * To-Do-IDs sind immer ungerade-unabhängig; hier erzwingen wir gerade IDs,
+ * To-Dos erzeugen (siehe useTodoReminders) über `|| 1` beliebige Werte – durch
+ * die Beschränkung auf gerade Zahlen in diesem Band plus eigenem Hash-Seed
+ * bleiben Kollisionen praktisch ausgeschlossen.
  */
 export function eventNotificationId(id: string): number {
   let hash = 7;
   for (let i = 0; i < id.length; i++) {
     hash = (hash * 33 + id.charCodeAt(i)) | 0;
   }
-  return (Math.abs(hash) % 100_000_000) + 2_000_000_001;
+  const slot = Math.abs(hash) % 449_999_999;
+  return 1_000_000_000 + slot * 2; // gerade IDs in 1_000_000_000 – 1_899_999_996
 }
 
 function signature(event: CalEvent, at: number, title: string, body: string) {
