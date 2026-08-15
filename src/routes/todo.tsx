@@ -19,7 +19,6 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { useTodos, type Todo } from "@/hooks/useTodos";
 import { todoDueDate } from "@/hooks/useTodoReminders";
 import { TodoDebugPanel } from "@/components/TodoDebugPanel";
-import { NotificationSetup } from "@/components/NotificationSetup";
 import { FREE_TODO_LIMIT } from "@/lib/premium";
 import { fmt } from "@/lib/dates";
 
@@ -103,8 +102,7 @@ function TodoPage() {
           </div>
         )}
 
-        <NotificationSetup />
-        <TodoDebugPanel />
+        {import.meta.env.DEV && <TodoDebugPanel />}
 
         <div className="flex gap-2">
           <Input
