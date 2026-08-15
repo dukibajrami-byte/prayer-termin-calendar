@@ -38,6 +38,9 @@ export function useEventReminders() {
   const [now, setNow] = useState(() => new Date());
   const notified = useRef(new Set<string>());
   const scheduled = useRef(new Map<number, string>());
+  // IDs, deren Zeitpunkt bereits erreicht wurde: Android hat sie (vermutlich)
+  // schon angezeigt – sie dürfen NICHT mehr abgebrochen werden.
+  const delivered = useRef(new Set<number>());
   const native = typeof window !== "undefined" && isNativePlatform();
 
   useEffect(() => {
@@ -57,12 +60,17 @@ export function useEventReminders() {
       const { LocalNotifications } = await import("@capacitor/local-notifications");
 
       const wanted = new Map<number, { at: Date; title: string; body: string; sig: string }>();
+      const pastDue = new Set<number>();
       for (const event of events) {
         if (event.reminderMinutes < 0) continue;
         const start = new Date(event.start);
         if (Number.isNaN(start.getTime())) continue;
         const at = new Date(start.getTime() - event.reminderMinutes * 60_000);
-        if (at.getTime() <= Date.now()) continue;
+        const id0 = eventNotificationId(event.id);
+        if (at.getTime() <= Date.now()) {
+          pastDue.add(id0);
+          continue;
+        }
         const title = t("notif.event", { title: event.title });
         const body = t("notif.eventBody", { time: fmt(start, "HH:mm") });
         const id = eventNotificationId(event.id);
@@ -72,10 +80,21 @@ export function useEventReminders() {
       const toCancel: { id: number }[] = [];
       for (const [id, sig] of scheduled.current) {
         const next = wanted.get(id);
-        if (!next || next.sig !== sig) {
-          toCancel.push({ id });
+        if (next && next.sig === sig) continue;
+        if (pastDue.has(id) || delivered.current.has(id)) {
+          // Erinnerungszeit ist vorbei -> Notification wurde bereits ausgelöst.
+          // Nicht abbrechen, sonst verschwindet sie sofort wieder aus der Leiste.
+          delivered.current.add(id);
           scheduled.current.delete(id);
+          console.info(`[event-reminders] keep ${id} (already fired, not cancelled)`);
+          continue;
         }
+        const reason = !next
+          ? "event deleted or reminder disabled"
+          : "reminder changed (time/title/offset)";
+        console.info(`[event-reminders] cancel ${id} – reason: ${reason}`);
+        toCancel.push({ id });
+        scheduled.current.delete(id);
       }
       if (toCancel.length) {
         try {
