@@ -17,7 +17,9 @@ import {
 import { useI18n } from "@/lib/i18n";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useTodos, type Todo } from "@/hooks/useTodos";
-import { useTodoReminders, todoDueDate } from "@/hooks/useTodoReminders";
+import { todoDueDate } from "@/hooks/useTodoReminders";
+import { TodoDebugPanel } from "@/components/TodoDebugPanel";
+import { NotificationSetup } from "@/components/NotificationSetup";
 import { FREE_TODO_LIMIT } from "@/lib/premium";
 import { fmt } from "@/lib/dates";
 
@@ -49,7 +51,6 @@ function TodoPage() {
   const { todos, add, update, remove, clearDone, loaded } = useTodos();
   const [title, setTitle] = useState("");
   const [openId, setOpenId] = useState<string | null>(null);
-  useTodoReminders();
 
   const open = useMemo(
     () =>
