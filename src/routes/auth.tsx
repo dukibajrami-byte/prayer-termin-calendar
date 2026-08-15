@@ -57,6 +57,7 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [nativeDebugMsg, setNativeDebugMsg] = useState<string | null>(null);
+  const [oauthDebug, setOauthDebug] = useState<{ redirectUri: string; nativeFlow: boolean } | null>(null);
   const target = next ?? "/premium";
   // `native=1` is only present on the first hop; after the Google round trip we
   // rely on the persisted flag so we never fall through to the web flow.
@@ -124,6 +125,9 @@ function AuthPage() {
     const redirectUri = nativeFlow
       ? `${window.location.origin}/native-auth-callback?next=${encodeURIComponent(target)}`
       : `${window.location.origin}/auth?next=${encodeURIComponent(target)}`;
+    setOauthDebug({ redirectUri, nativeFlow });
+    // eslint-disable-next-line no-console
+    console.log("[oauth-debug] redirect_uri:", redirectUri, "nativeFlow:", nativeFlow);
     const result = await lovable.auth.signInWithOAuth("google", {
       redirect_uri: redirectUri,
     });
@@ -148,6 +152,13 @@ function AuthPage() {
             }`}
           >
             {nativeDebugMsg}
+          </div>
+        )}
+        {oauthDebug && (
+          <div className="rounded-lg border border-border bg-muted/50 p-3 space-y-1">
+            <p className="text-xs font-medium text-muted-foreground">OAuth debug</p>
+            <p className="text-xs break-all font-mono text-foreground">{oauthDebug.redirectUri}</p>
+            <p className="text-xs text-muted-foreground">nativeFlow: {String(oauthDebug.nativeFlow)}</p>
           </div>
         )}
         <div className="space-y-1">
