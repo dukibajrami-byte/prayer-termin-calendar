@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useI18n } from "@/lib/i18n";
-import { useEvents } from "@/hooks/useEvents";
+import { useEventsStore } from "@/hooks/useEvents";
 import { fmt } from "@/lib/dates";
 import { isNativePlatform, ensureNativeNotificationPermission } from "@/lib/native-notifications";
 import type { CalEvent } from "@/lib/store";
@@ -33,8 +33,7 @@ function signature(event: CalEvent, at: number, title: string, body: string) {
  */
 export function useEventReminders() {
   const { t } = useI18n();
-  const [cursor] = useState(() => new Date());
-  const { events } = useEvents(cursor, "month");
+  const { events } = useEventsStore();
   const [now, setNow] = useState(() => new Date());
   const notified = useRef(new Set<string>());
   const scheduled = useRef(new Map<number, string>());
