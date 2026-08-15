@@ -126,6 +126,17 @@ function AuthPage() {
     <main className="flex min-h-screen items-center justify-center bg-background px-4">
       <Toaster />
       <div className="w-full max-w-sm space-y-5 rounded-2xl border border-border bg-card p-6">
+        {nativeDebugMsg && (
+          <div
+            className={`rounded-lg px-3 py-2 text-center text-sm font-medium ${
+              nativeDebugMsg === "Native session ready"
+                ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-200"
+                : "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-200"
+            }`}
+          >
+            {nativeDebugMsg}
+          </div>
+        )}
         <div className="space-y-1">
           <h1 className="font-display text-xl font-semibold">
             {mode === "signin" ? t("auth.signIn") : t("auth.signUp")}
