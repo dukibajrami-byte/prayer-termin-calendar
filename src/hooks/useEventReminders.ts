@@ -44,9 +44,19 @@ export function useEventReminders() {
   const native = typeof window !== "undefined" && isNativePlatform();
 
 useEffect(() => {
+  useEffect(() => {
   console.info(
     "[event-reminders] DEBUG events",
-    events.map((event) => ({
+    JSON.stringify(
+      events.map((event) => ({
+        id: event.id,
+        title: event.title,
+        start: event.start,
+        reminderMinutes: event.reminderMinutes,
+      })),
+    ),
+  );
+}, [events]);
       id: event.id,
       title: event.title,
       start: event.start,
