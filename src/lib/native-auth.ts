@@ -17,6 +17,12 @@ export function isNativeApp(): boolean {
   return Boolean(cap?.isNativePlatform?.());
 }
 
+/** True when the current *browser* runs on Android (system browser during OAuth). */
+export function isAndroidBrowser(): boolean {
+  if (typeof window === "undefined") return false;
+  return /android/i.test(window.navigator.userAgent);
+}
+
 /**
  * Opens the sign-in page in the system browser (Google blocks OAuth inside
  * embedded webviews) and lets it hand the session back through the deep link.
@@ -27,14 +33,29 @@ export async function startNativeSignIn(next: string): Promise<void> {
   await Browser.open({ url, presentationStyle: "popover" });
 }
 
-/** Called from the browser tab once a session exists: hands it to the app. */
-export function handoffSessionToNativeApp(session: Session, next: string): void {
+/**
+ * Builds the deep-link URL that carries the session back into the native app.
+ * Android: an intent:// URI explicitly targeting our package — Chrome often
+ * refuses to auto-follow bare custom schemes.
+ * iOS / everything else: the plain custom scheme.
+ */
+export function buildNativeCallbackUrl(session: Session, next: string): string {
   const params = new URLSearchParams({
     access_token: session.access_token,
     refresh_token: session.refresh_token,
     next,
   });
-  window.location.href = `${NATIVE_AUTH_CALLBACK}#${params.toString()}`;
+  if (isAndroidBrowser()) {
+    return `intent://login-callback?${params.toString()}#Intent;scheme=${NATIVE_APP_SCHEME};package=${NATIVE_APP_SCHEME};end`;
+  }
+  return `${NATIVE_AUTH_CALLBACK}#${params.toString()}`;
+}
+
+/** Called from the browser tab once a session exists: hands it to the app. */
+export function handoffSessionToNativeApp(session: Session, next: string): string {
+  const url = buildNativeCallbackUrl(session, next);
+  window.location.href = url;
+  return url;
 }
 
 export type NativeAuthResult = { ok: boolean; next: string };
@@ -84,8 +105,8 @@ export function clearPendingNativeHandoff(): void {
 /** Parses a deep link and, if it carries tokens, establishes the session. */
 export async function consumeNativeAuthUrl(url: string): Promise<NativeAuthResult | null> {
   if (!url.startsWith(NATIVE_AUTH_CALLBACK)) return null;
-  const fragment = url.split("#")[1] ?? url.split("?")[1] ?? "";
-  const params = new URLSearchParams(fragment);
+  const payload = url.split("#")[1] || url.split("?")[1] || "";
+  const params = new URLSearchParams(payload);
   const access_token = params.get("access_token");
   const refresh_token = params.get("refresh_token");
   const next = params.get("next") ?? "/";
