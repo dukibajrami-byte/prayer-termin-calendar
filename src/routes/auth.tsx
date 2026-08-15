@@ -125,6 +125,9 @@ function AuthPage() {
     const redirectUri = nativeFlow
       ? `${window.location.origin}/native-auth-callback?next=${encodeURIComponent(target)}`
       : `${window.location.origin}/auth?next=${encodeURIComponent(target)}`;
+    setOauthDebug({ redirectUri, nativeFlow });
+    // eslint-disable-next-line no-console
+    console.log("[oauth-debug] redirect_uri:", redirectUri, "nativeFlow:", nativeFlow);
     const result = await lovable.auth.signInWithOAuth("google", {
       redirect_uri: redirectUri,
     });
