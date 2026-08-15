@@ -43,6 +43,18 @@ export function useEventReminders() {
   const delivered = useRef(new Set<number>());
   const native = typeof window !== "undefined" && isNativePlatform();
 
+useEffect(() => {
+  console.info(
+    "[event-reminders] DEBUG events",
+    events.map((event) => ({
+      id: event.id,
+      title: event.title,
+      start: event.start,
+      reminderMinutes: event.reminderMinutes,
+    })),
+  );
+}, [events]);
+
   useEffect(() => {
     if (native) return;
     const id = window.setInterval(() => setNow(new Date()), 30_000);
