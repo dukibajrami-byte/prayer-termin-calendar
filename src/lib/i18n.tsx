@@ -557,6 +557,13 @@ const ar: Dict = {
   "todo.premiumHint": "ملاحظات المهام ميزة بريميوم – مجاناً حتى {n} مهام.",
   "todo.back": "العودة إلى التقويم",
   "todo.overdue": "متأخرة",
+  "todo.time": "الوقت",
+  "todo.reminder": "تذكير",
+  "todo.remindNone": "بدون تذكير",
+  "todo.remindAtDue": "عند الاستحقاق",
+  "todo.remindBefore": "قبل {m} دقيقة",
+  "todo.remindNeedsDue": "التذكير يحتاج تاريخ استحقاق.",
+  "todo.remindPremium": "تذكيرات المهام ميزة مميزة.",
 };
 
 
@@ -735,6 +742,13 @@ const sq: Dict = {
   "todo.premiumHint": "Shënimet To-Do janë veçori Premium – falas deri në {n} detyra.",
   "todo.back": "Kthehu te kalendari",
   "todo.overdue": "E vonuar",
+  "todo.time": "Ora",
+  "todo.reminder": "Kujtues",
+  "todo.remindNone": "Pa kujtues",
+  "todo.remindAtDue": "Në momentin e afatit",
+  "todo.remindBefore": "{m} min para",
+  "todo.remindNeedsDue": "Kujtuesi kërkon një datë afati.",
+  "todo.remindPremium": "Kujtuesit e detyrave janë veçori Premium.",
 };
 
 
