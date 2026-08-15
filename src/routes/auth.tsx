@@ -12,6 +12,9 @@ import { useAuth } from "@/hooks/useAuth";
 import {
   handoffSessionToNativeApp,
   isNativeApp,
+  clearPendingNativeHandoff,
+  getPendingNativeHandoff,
+  markNativeHandoffPending,
   startNativeSignIn,
 } from "@/lib/native-auth";
 
@@ -57,16 +60,24 @@ function AuthPage() {
   const [busy, setBusy] = useState(false);
   const [nativeDebugMsg, setNativeDebugMsg] = useState<string | null>(null);
   const target = next ?? "/premium";
+  // `native=1` is only present on the first hop; after the Google round trip we
+  // rely on the persisted flag so we never fall through to the web flow.
+  const nativeFlow = Boolean(native) || getPendingNativeHandoff() !== null;
+
+  useEffect(() => {
+    if (native) markNativeHandoffPending(target);
+  }, [native, target]);
 
   useEffect(() => {
     if (loading) return;
     // Opened from the native app in the system browser: hand the session back
     // to the app through the deep link instead of navigating here.
-    if (native) {
+    if (nativeFlow) {
       if (session) {
         // eslint-disable-next-line no-console
         console.log("[native-oauth-debug] Valid Supabase session exists before handoff");
         setNativeDebugMsg("Native session ready");
+        clearPendingNativeHandoff();
         handoffSessionToNativeApp(session, target);
       } else {
         // eslint-disable-next-line no-console
@@ -77,7 +88,7 @@ function AuthPage() {
     }
     if (!user) return;
     void navigate({ to: target });
-  }, [loading, user, session, native, navigate, target]);
+  }, [loading, user, session, nativeFlow, navigate, target]);
 
   const submit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
@@ -110,7 +121,8 @@ function AuthPage() {
       await startNativeSignIn(target);
       return;
     }
-    const nativeParam = native ? "&native=1" : "";
+    if (nativeFlow) markNativeHandoffPending(target);
+    const nativeParam = nativeFlow ? "&native=1" : "";
     const result = await lovable.auth.signInWithOAuth("google", {
       redirect_uri: `${window.location.origin}/auth?next=${encodeURIComponent(target)}${nativeParam}`,
     });
@@ -119,7 +131,7 @@ function AuthPage() {
       return;
     }
     if (result.redirected) return;
-    void navigate({ to: target });
+    if (!nativeFlow) void navigate({ to: target });
   };
 
   return (
