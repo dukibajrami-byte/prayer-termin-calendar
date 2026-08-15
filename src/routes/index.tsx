@@ -165,7 +165,7 @@ function Index() {
 
   const nextHolidays = useMemo(() => upcomingHolidays(now).slice(0, 4), [now]);
 
-  // Erinnerungen für Termine und Gebete
+  // Gebets-Erinnerungen (Termin-Erinnerungen laufen global in useEventReminders)
   useEffect(() => {
     const fire = (msg: string, description: string) => {
       toast(msg, { description });
@@ -173,18 +173,6 @@ function Index() {
         new Notification(msg, { body: description });
       }
     };
-    for (const e of events) {
-      if (e.reminderMinutes < 0) continue;
-      const at = new Date(e.start).getTime() - e.reminderMinutes * 60_000;
-      const key = `event-${e.id}-${at}`;
-      if (!notified.current.has(key) && at <= now.getTime() && now.getTime() - at < 120_000) {
-        notified.current.add(key);
-        fire(
-          t("notif.event", { title: e.title }),
-          t("notif.eventBody", { time: fmt(new Date(e.start), "HH:mm") }),
-        );
-      }
-    }
     if (upcoming && settings.prayerReminderMinutes >= 0) {
       const at = upcoming.start.getTime() - settings.prayerReminderMinutes * 60_000;
       const key = `prayer-${upcoming.name}-${at}`;
@@ -196,7 +184,7 @@ function Index() {
         );
       }
     }
-  }, [now, events, upcoming, settings.prayerReminderMinutes, t]);
+  }, [now, upcoming, settings.prayerReminderMinutes, t]);
 
   const openNew = (start: Date) => {
     const end = new Date(start.getTime() + 60 * 60_000);
