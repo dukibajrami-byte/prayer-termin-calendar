@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 export const NATIVE_APP_SCHEME = "com.muslimtermin.app";
 export const NATIVE_AUTH_CALLBACK = `${NATIVE_APP_SCHEME}://login-callback`;
 /** The published site the native shell wraps. */
-export const WEB_ORIGIN = "https://muslimtermin.com";
+export const WEB_ORIGIN = "https://muslim-calendar.com";
 
 export function isNativeApp(): boolean {
   if (typeof window === "undefined") return false;
