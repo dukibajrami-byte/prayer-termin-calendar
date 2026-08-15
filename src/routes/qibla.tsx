@@ -13,13 +13,13 @@ export const Route = createFileRoute("/qibla")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Qibla-Richtung – Muslimtermin Kalender" },
+      { title: "Qibla-Richtung – Muslim Appointment Calendar" },
       {
         name: "description",
         content:
           "Qibla-Kompass: Richtung nach Mekka auf Basis deines Standorts, inklusive Peilung ab Norden und Entfernung zur Kaaba.",
       },
-      { property: "og:title", content: "Qibla-Richtung – Muslimtermin" },
+      { property: "og:title", content: "Qibla-Richtung – Muslim Appointment Calendar" },
       {
         property: "og:description",
         content: "Gebetsrichtung nach Mekka mit Kompass und Peilung ab Norden.",

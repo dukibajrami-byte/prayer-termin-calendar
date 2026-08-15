@@ -13,15 +13,15 @@ export const Route = createFileRoute("/native-auth-callback")({
   }),
   head: () => ({
     meta: [
-      { title: "Zurück zur App – Muslimtermin" },
+      { title: "Zurück zur App – Muslim Appointment Calendar" },
       {
         name: "description",
-        content: "Anmeldung abgeschlossen – zurück zur Muslimtermin App wechseln.",
+        content: "Anmeldung abgeschlossen – zurück zur Muslim Appointment Calendar App wechseln.",
       },
-      { property: "og:title", content: "Zurück zur App – Muslimtermin" },
+      { property: "og:title", content: "Zurück zur App – Muslim Appointment Calendar" },
       {
         property: "og:description",
-        content: "Die Anmeldung war erfolgreich. Kehre zur Muslimtermin App zurück.",
+        content: "Die Anmeldung war erfolgreich. Kehre zur Muslim Appointment Calendar App zurück.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

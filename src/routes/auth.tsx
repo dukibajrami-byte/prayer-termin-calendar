@@ -44,13 +44,13 @@ export const Route = createFileRoute("/auth")({
   }),
   head: () => ({
     meta: [
-      { title: "Anmelden – Muslimtermin" },
+      { title: "Anmelden – Muslim Appointment Calendar" },
       {
         name: "description",
         content:
           "Melde dich an, um Premium-Funktionen wie unbegrenzte Erinnerungen und alle Berechnungsmethoden für Gebetszeiten zu nutzen.",
       },
-      { property: "og:title", content: "Anmelden – Muslimtermin" },
+      { property: "og:title", content: "Anmelden – Muslim Appointment Calendar" },
       {
         property: "og:description",
         content: "Konto erstellen oder anmelden und Premium freischalten.",
