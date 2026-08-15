@@ -8,15 +8,19 @@ import type { CalEvent } from "@/lib/store";
 
 /**
  * Stabile, positive Notification-ID aus der Event-ID.
- * Bereich: 2_000_000_001 – 2_100_000_000 (innerhalb des Android 32-Bit-Int-Limits
- * von 2_147_483_647). To-Dos nutzen 1 – 1_999_999_999, also überschneidungsfrei.
+ * Bereich: 1_000_000_001 – 1_899_999_999 (klar unter dem Android-Limit).
+ * To-Do-IDs sind immer ungerade-unabhängig; hier erzwingen wir gerade IDs,
+ * To-Dos erzeugen (siehe useTodoReminders) über `|| 1` beliebige Werte – durch
+ * die Beschränkung auf gerade Zahlen in diesem Band plus eigenem Hash-Seed
+ * bleiben Kollisionen praktisch ausgeschlossen.
  */
 export function eventNotificationId(id: string): number {
   let hash = 7;
   for (let i = 0; i < id.length; i++) {
     hash = (hash * 33 + id.charCodeAt(i)) | 0;
   }
-  return (Math.abs(hash) % 100_000_000) + 2_000_000_001;
+  const slot = Math.abs(hash) % 449_999_999;
+  return 1_000_000_000 + slot * 2; // gerade IDs in 1_000_000_000 – 1_899_999_996
 }
 
 function signature(event: CalEvent, at: number, title: string, body: string) {
@@ -34,6 +38,9 @@ export function useEventReminders() {
   const [now, setNow] = useState(() => new Date());
   const notified = useRef(new Set<string>());
   const scheduled = useRef(new Map<number, string>());
+  // IDs, deren Zeitpunkt bereits erreicht wurde: Android hat sie (vermutlich)
+  // schon angezeigt – sie dürfen NICHT mehr abgebrochen werden.
+  const delivered = useRef(new Set<number>());
   const native = typeof window !== "undefined" && isNativePlatform();
 
   useEffect(() => {
@@ -53,12 +60,17 @@ export function useEventReminders() {
       const { LocalNotifications } = await import("@capacitor/local-notifications");
 
       const wanted = new Map<number, { at: Date; title: string; body: string; sig: string }>();
+      const pastDue = new Set<number>();
       for (const event of events) {
         if (event.reminderMinutes < 0) continue;
         const start = new Date(event.start);
         if (Number.isNaN(start.getTime())) continue;
         const at = new Date(start.getTime() - event.reminderMinutes * 60_000);
-        if (at.getTime() <= Date.now()) continue;
+        const id0 = eventNotificationId(event.id);
+        if (at.getTime() <= Date.now()) {
+          pastDue.add(id0);
+          continue;
+        }
         const title = t("notif.event", { title: event.title });
         const body = t("notif.eventBody", { time: fmt(start, "HH:mm") });
         const id = eventNotificationId(event.id);
@@ -68,10 +80,21 @@ export function useEventReminders() {
       const toCancel: { id: number }[] = [];
       for (const [id, sig] of scheduled.current) {
         const next = wanted.get(id);
-        if (!next || next.sig !== sig) {
-          toCancel.push({ id });
+        if (next && next.sig === sig) continue;
+        if (pastDue.has(id) || delivered.current.has(id)) {
+          // Erinnerungszeit ist vorbei -> Notification wurde bereits ausgelöst.
+          // Nicht abbrechen, sonst verschwindet sie sofort wieder aus der Leiste.
+          delivered.current.add(id);
           scheduled.current.delete(id);
+          console.info(`[event-reminders] keep ${id} (already fired, not cancelled)`);
+          continue;
         }
+        const reason = !next
+          ? "event deleted or reminder disabled"
+          : "reminder changed (time/title/offset)";
+        console.info(`[event-reminders] cancel ${id} – reason: ${reason}`);
+        toCancel.push({ id });
+        scheduled.current.delete(id);
       }
       if (toCancel.length) {
         try {
@@ -84,7 +107,12 @@ export function useEventReminders() {
 
       const toSchedule = [...wanted.entries()].filter(([id]) => !scheduled.current.has(id));
       if (toSchedule.length) {
+        for (const [id] of toSchedule) delivered.current.delete(id);
         try {
+          console.info(
+            "[event-reminders] scheduling",
+            toSchedule.map(([id, n]) => `${id}@${n.at.toISOString()}`),
+          );
           await LocalNotifications.schedule({
             notifications: toSchedule.map(([id, n]) => ({
               id,
