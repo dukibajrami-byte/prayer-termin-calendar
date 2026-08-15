@@ -1,4 +1,5 @@
 import { Capacitor } from "@capacitor/core";
+import type { PermissionState } from "@capacitor/core";
 
 export function isNativePlatform(): boolean {
   if (typeof window === "undefined") return false;
@@ -7,7 +8,7 @@ export function isNativePlatform(): boolean {
 
 export interface NotificationPermissionResult {
   granted: boolean;
-  display?: "granted" | "denied" | "prompt";
+  display?: PermissionState;
 }
 
 /**
