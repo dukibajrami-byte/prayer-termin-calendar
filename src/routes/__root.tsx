@@ -16,6 +16,7 @@ import { useNativeAuthDeepLink } from "@/hooks/useNativeAuthDeepLink";
 import { useNativeOAuthHandoff } from "@/hooks/useNativeOAuthHandoff";
 import { NativeReturnBanner } from "@/components/NativeReturnBanner";
 import { TodosProvider } from "@/hooks/useTodos";
+import { EventsProvider } from "@/hooks/useEvents";
 import { useTodoReminders } from "@/hooks/useTodoReminders";
 import { useEventReminders } from "@/hooks/useEventReminders";
 
@@ -158,11 +159,13 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <I18nProvider>
         <TodosProvider>
-          {/* Single global instance of the to-do reminder scheduler. */}
-          <GlobalTodoReminders />
-          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-          <Outlet />
-          {nativeReturnUrl ? <NativeReturnBanner url={nativeReturnUrl} /> : null}
+          <EventsProvider>
+            {/* Single global instance of the to-do/event reminder schedulers. */}
+            <GlobalTodoReminders />
+            {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+            <Outlet />
+            {nativeReturnUrl ? <NativeReturnBanner url={nativeReturnUrl} /> : null}
+          </EventsProvider>
         </TodosProvider>
       </I18nProvider>
     </QueryClientProvider>
