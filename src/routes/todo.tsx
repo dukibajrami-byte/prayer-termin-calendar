@@ -103,6 +103,9 @@ function TodoPage() {
           </div>
         )}
 
+        <NotificationSetup />
+        <TodoDebugPanel />
+
         <div className="flex gap-2">
           <Input
             value={title}
