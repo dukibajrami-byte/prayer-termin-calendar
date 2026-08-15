@@ -6,6 +6,8 @@ export interface Todo {
   title: string;
   notes?: string;
   due?: string | null; // ISO date (yyyy-mm-dd)
+  dueTime?: string | null; // HH:mm
+  reminderMinutes?: number; // -1 = aus
   important?: boolean;
   done: boolean;
   createdAt: string;
@@ -24,6 +26,8 @@ export function useTodos() {
             done: false,
             important: false,
             due: null,
+            dueTime: null,
+            reminderMinutes: -1,
             createdAt: new Date().toISOString(),
           },
           ...prev.items,
