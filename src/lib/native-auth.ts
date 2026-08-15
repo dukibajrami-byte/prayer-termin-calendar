@@ -2,6 +2,7 @@
 // Web behaviour is untouched: every helper here no-ops unless we run inside the
 // native Android/iOS shell.
 
+import { Capacitor } from "@capacitor/core";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -12,9 +13,7 @@ export const WEB_ORIGIN = "https://muslim-calendar.com";
 
 export function isNativeApp(): boolean {
   if (typeof window === "undefined") return false;
-  const cap = (window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } })
-    .Capacitor;
-  return Boolean(cap?.isNativePlatform?.());
+  return Capacitor.isNativePlatform();
 }
 
 /** True when the current *browser* runs on Android (system browser during OAuth). */
