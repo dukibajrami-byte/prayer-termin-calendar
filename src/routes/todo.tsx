@@ -102,8 +102,7 @@ function TodoPage() {
           </div>
         )}
 
-        <NotificationSetup />
-        <TodoDebugPanel />
+        {import.meta.env.DEV && <TodoDebugPanel />}
 
         <div className="flex gap-2">
           <Input
