@@ -43,27 +43,19 @@ export function useEventReminders() {
   const delivered = useRef(new Set<number>());
   const native = typeof window !== "undefined" && isNativePlatform();
 
-useEffect(() => {
   useEffect(() => {
-  console.info(
-    "[event-reminders] DEBUG events",
-    JSON.stringify(
-      events.map((event) => ({
-        id: event.id,
-        title: event.title,
-        start: event.start,
-        reminderMinutes: event.reminderMinutes,
-      })),
-    ),
-  );
-}, [events]);
-      id: event.id,
-      title: event.title,
-      start: event.start,
-      reminderMinutes: event.reminderMinutes,
-    })),
-  );
-}, [events]);
+    console.info(
+      "[event-reminders] DEBUG events",
+      JSON.stringify(
+        events.map((event) => ({
+          id: event.id,
+          title: event.title,
+          start: event.start,
+          reminderMinutes: event.reminderMinutes,
+        })),
+      ),
+    );
+  }, [events]);
 
   useEffect(() => {
     if (native) return;
