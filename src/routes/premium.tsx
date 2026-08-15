@@ -58,7 +58,7 @@ function PremiumPage() {
       toast.error(result.error);
       return;
     }
-    window.open(result.url, "_blank");
+    window.location.href = result.url;
   };
 
   const signOutNow = async () => {
