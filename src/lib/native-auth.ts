@@ -28,7 +28,7 @@ export function isAndroidBrowser(): boolean {
  */
 export async function startNativeSignIn(next: string): Promise<void> {
   const { Browser } = await import("@capacitor/browser");
-  const url = `${WEB_ORIGIN}/auth?native=1&next=${encodeURIComponent(next)}`;
+  const url = `${WEB_ORIGIN}/auth?native=true&next=${encodeURIComponent(next)}`;
   await Browser.open({ url, presentationStyle: "popover" });
 }
 
