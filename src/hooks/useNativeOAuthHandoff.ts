@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   clearPendingNativeHandoff,
@@ -13,7 +13,9 @@ import {
  * through the deep link, no matter which page the OAuth redirect landed on.
  * No-op on normal web sessions and inside the native shell itself.
  */
-export function useNativeOAuthHandoff(): void {
+export function useNativeOAuthHandoff(): string | null {
+  const [returnUrl, setReturnUrl] = useState<string | null>(null);
+
   useEffect(() => {
     if (typeof window === "undefined" || isNativeApp()) return;
     if (!getPendingNativeHandoff()) return;
@@ -25,7 +27,7 @@ export function useNativeOAuthHandoff(): void {
       if (!next) return;
       done = true;
       clearPendingNativeHandoff();
-      handoffSessionToNativeApp(session, next);
+      setReturnUrl(handoffSessionToNativeApp(session, next));
     };
 
     void supabase.auth.getSession().then(({ data }) => tryHandoff(data.session));
@@ -34,4 +36,6 @@ export function useNativeOAuthHandoff(): void {
     );
     return () => sub.subscription.unsubscribe();
   }, []);
+
+  return returnUrl;
 }
