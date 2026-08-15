@@ -21,7 +21,7 @@ import {
   type PrayerSlot,
 } from "@/lib/prayer";
 import { LANGS, useI18n, type Lang } from "@/lib/i18n";
-import { AUTO_LOCATION, resolveLocationName } from "@/lib/location";
+import { AUTO_LOCATION, resolveLocationName, reverseGeocode } from "@/lib/location";
 import { hijriLabel, upcomingHolidays } from "@/lib/holidays";
 import { InstallButton } from "@/components/InstallButton";
 import { Link } from "@tanstack/react-router";
@@ -108,16 +108,24 @@ function Index() {
     }
     setLocating(true);
     navigator.geolocation.getCurrentPosition(
-      (pos) => {
+      async (pos) => {
         setLocating(false);
+        const lat = Number(pos.coords.latitude.toFixed(4));
+        const lon = Number(pos.coords.longitude.toFixed(4));
         setSettings((prev) => ({
           ...prev,
-          latitude: Number(pos.coords.latitude.toFixed(4)),
-          longitude: Number(pos.coords.longitude.toFixed(4)),
+          latitude: lat,
+          longitude: lon,
           locationName: AUTO_LOCATION,
           timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || prev.timeZone,
         }));
         toast.success(t("toast.located"));
+        const place = await reverseGeocode(lat, lon, lang);
+        if (place) {
+          setSettings((prev) =>
+            prev.locationName === AUTO_LOCATION ? { ...prev, locationName: place } : prev,
+          );
+        }
       },
       () => {
         setLocating(false);
@@ -125,7 +133,7 @@ function Index() {
       },
       { enableHighAccuracy: false, timeout: 10_000 },
     );
-  }, [setSettings, t]);
+  }, [setSettings, t, lang]);
 
   useEffect(() => {
     if (settings.autoLocation && settings.locationName === DEFAULT_SETTINGS.locationName) {
