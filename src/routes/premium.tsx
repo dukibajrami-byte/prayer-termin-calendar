@@ -38,7 +38,7 @@ export const Route = createFileRoute("/premium")({
 function PremiumPage() {
   const { t } = useI18n();
   const navigate = useNavigate();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, signOut } = useAuth();
   const { isPremium, subscription, loading } = useSubscription();
   const [checkoutPrice, setCheckoutPrice] = useState<string | null>(null);
 
@@ -59,6 +59,11 @@ function PremiumPage() {
       return;
     }
     window.open(result.url, "_blank");
+  };
+
+  const signOutNow = async () => {
+    await signOut();
+    void navigate({ to: "/" });
   };
 
   const features = [
@@ -105,6 +110,11 @@ function PremiumPage() {
             <Button variant="outline" onClick={manage}>
               {t("premium.manage")}
             </Button>
+            <div>
+              <Button variant="ghost" size="sm" onClick={signOutNow}>
+                {t("auth.signOut")}
+              </Button>
+            </div>
           </div>
         ) : checkoutPrice ? (
           <div className="space-y-3">
@@ -138,6 +148,13 @@ function PremiumPage() {
         )}
 
         <div className="text-center">
+          {user && !isPremium && (
+            <div className="mb-2">
+              <Button variant="ghost" size="sm" onClick={signOutNow}>
+                {t("auth.signOut")}
+              </Button>
+            </div>
+          )}
           <Link to="/" className="text-sm text-muted-foreground underline">
             {t("auth.backToCalendar")}
           </Link>
