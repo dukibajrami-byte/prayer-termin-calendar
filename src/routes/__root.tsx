@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { I18nProvider } from "@/lib/i18n";
 import { useNativeAuthDeepLink } from "@/hooks/useNativeAuthDeepLink";
+import { useNativeOAuthHandoff } from "@/hooks/useNativeOAuthHandoff";
 
 function NotFoundComponent() {
   return (
@@ -141,6 +142,7 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   useNativeAuthDeepLink();
+  useNativeOAuthHandoff();
 
   return (
     <QueryClientProvider client={queryClient}>
