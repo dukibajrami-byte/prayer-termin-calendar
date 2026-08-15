@@ -7,9 +7,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useI18n } from "@/lib/i18n";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useTodos, type Todo } from "@/hooks/useTodos";
+import { useTodoReminders, todoDueDate } from "@/hooks/useTodoReminders";
 import { FREE_TODO_LIMIT } from "@/lib/premium";
 import { fmt } from "@/lib/dates";
 
@@ -41,6 +49,7 @@ function TodoPage() {
   const { todos, add, update, remove, clearDone, loaded } = useTodos();
   const [title, setTitle] = useState("");
   const [openId, setOpenId] = useState<string | null>(null);
+  useTodoReminders();
 
   const open = useMemo(
     () =>
@@ -119,6 +128,7 @@ function TodoPage() {
                 key={item.id}
                 item={item}
                 expanded={openId === item.id}
+                isPremium={isPremium}
                 onToggleExpand={() => setOpenId(openId === item.id ? null : item.id)}
                 onUpdate={(patch) => update(item.id, patch)}
                 onRemove={() => remove(item.id)}
@@ -142,6 +152,7 @@ function TodoPage() {
                 key={item.id}
                 item={item}
                 expanded={false}
+                isPremium={isPremium}
                 onToggleExpand={() => undefined}
                 onUpdate={(patch) => update(item.id, patch)}
                 onRemove={() => remove(item.id)}
@@ -157,19 +168,39 @@ function TodoPage() {
 function Row({
   item,
   expanded,
+  isPremium,
   onToggleExpand,
   onUpdate,
   onRemove,
 }: {
   item: Todo;
   expanded: boolean;
+  isPremium: boolean;
   onToggleExpand: () => void;
   onUpdate: (patch: Partial<Todo>) => void;
   onRemove: () => void;
 }) {
   const { t } = useI18n();
-  const overdue =
-    !item.done && item.due ? new Date(item.due).setHours(23, 59, 59) < Date.now() : false;
+  const dueAt = todoDueDate(item);
+  const overdue = !item.done && dueAt ? dueAt.getTime() < Date.now() : false;
+  const reminder = item.reminderMinutes ?? -1;
+
+  const setReminder = (value: number) => {
+    if (value >= 0 && !isPremium) {
+      toast.error(t("todo.remindPremium"), {
+        action: { label: t("premium.upgrade"), onClick: () => (window.location.href = "/premium") },
+      });
+      return;
+    }
+    if (value >= 0 && !item.due) {
+      toast.error(t("todo.remindNeedsDue"));
+      return;
+    }
+    onUpdate({ reminderMinutes: value });
+    if (value >= 0 && typeof Notification !== "undefined" && Notification.permission === "default") {
+      void Notification.requestPermission();
+    }
+  };
 
   return (
     <div className="rounded-xl border border-border bg-card p-3">
@@ -189,13 +220,15 @@ function Row({
             {item.title}
           </p>
           <p className="text-xs text-muted-foreground">
-            {item.due ? (
+            {dueAt ? (
               <span className={overdue ? "text-destructive" : ""}>
-                {overdue ? t("todo.overdue") : t("todo.due")}: {fmt(new Date(item.due), "d. MMM yyyy")}
+                {overdue ? t("todo.overdue") : t("todo.due")}:{" "}
+                {fmt(dueAt, item.dueTime ? "d. MMM yyyy, HH:mm" : "d. MMM yyyy")}
               </span>
             ) : (
               t("todo.noDue")
             )}
+            {reminder >= 0 ? " · 🔔" : ""}
             {item.notes ? " · " + item.notes.slice(0, 40) : ""}
           </p>
         </button>
@@ -225,10 +258,39 @@ function Row({
             <Input
               type="date"
               value={item.due ?? ""}
-              onChange={(e) => onUpdate({ due: e.target.value || null })}
+              onChange={(e) =>
+                onUpdate(
+                  e.target.value
+                    ? { due: e.target.value }
+                    : { due: null, dueTime: null, reminderMinutes: -1 },
+                )
+              }
               className="w-40"
               aria-label={t("todo.due")}
             />
+            <Input
+              type="time"
+              value={item.dueTime ?? ""}
+              onChange={(e) => onUpdate({ dueTime: e.target.value || null })}
+              className="w-28"
+              aria-label={t("todo.time")}
+            />
+            <Select value={String(reminder)} onValueChange={(v) => setReminder(Number(v))}>
+              <SelectTrigger className="w-44" aria-label={t("todo.reminder")}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {[-1, 0, 10, 30, 60, 1440].map((m) => (
+                  <SelectItem key={m} value={String(m)}>
+                    {m < 0
+                      ? t("todo.remindNone")
+                      : m === 0
+                        ? t("todo.remindAtDue")
+                        : t("todo.remindBefore", { m })}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <Textarea
             rows={2}
