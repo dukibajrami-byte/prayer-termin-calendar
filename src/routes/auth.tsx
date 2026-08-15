@@ -57,6 +57,7 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [nativeDebugMsg, setNativeDebugMsg] = useState<string | null>(null);
+  const [oauthDebug, setOauthDebug] = useState<{ redirectUri: string; nativeFlow: boolean } | null>(null);
   const target = next ?? "/premium";
   // `native=1` is only present on the first hop; after the Google round trip we
   // rely on the persisted flag so we never fall through to the web flow.
