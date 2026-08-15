@@ -198,6 +198,48 @@ export type Database = {
         }
         Relationships: []
       }
+      todos: {
+        Row: {
+          created_at: string
+          done: boolean
+          due: string | null
+          due_time: string | null
+          id: string
+          important: boolean
+          notes: string | null
+          reminder_minutes: number
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          done?: boolean
+          due?: string | null
+          due_time?: string | null
+          id?: string
+          important?: boolean
+          notes?: string | null
+          reminder_minutes?: number
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          done?: boolean
+          due?: string | null
+          due_time?: string | null
+          id?: string
+          important?: boolean
+          notes?: string | null
+          reminder_minutes?: number
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
