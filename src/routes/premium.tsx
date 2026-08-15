@@ -17,13 +17,13 @@ export const Route = createFileRoute("/premium")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Premium – Muslimtermin Kalender" },
+      { title: "Premium – Muslim Appointment Calendar" },
       {
         name: "description",
         content:
           "Premium für den muslimischen Terminkalender: unbegrenzte Erinnerungen und alle Berechnungsmethoden für Gebetszeiten – monatlich oder jährlich.",
       },
-      { property: "og:title", content: "Muslimtermin Premium" },
+      { property: "og:title", content: "Muslim Appointment Calendar Premium" },
       {
         property: "og:description",
         content: "Unbegrenzte Erinnerungen und alle Berechnungsmethoden freischalten.",

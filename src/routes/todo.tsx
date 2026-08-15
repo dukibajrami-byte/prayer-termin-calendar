@@ -17,13 +17,13 @@ export const Route = createFileRoute("/todo")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "To-Do Notizen – Muslimtermin Kalender" },
+      { title: "To-Do Notizen – Muslim Appointment Calendar" },
       {
         name: "description",
         content:
           "Aufgabenliste für Muslime: To-Do-Notizen mit Fälligkeitsdatum, Wichtig-Markierung und Notizen – passend zum Kalender mit Gebetszeiten.",
       },
-      { property: "og:title", content: "To-Do Notizen – Muslimtermin" },
+      { property: "og:title", content: "To-Do Notizen – Muslim Appointment Calendar" },
       {
         property: "og:description",
         content: "Aufgaben festhalten, priorisieren und rund um die Gebetszeiten planen.",
