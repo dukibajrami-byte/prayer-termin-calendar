@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { CalendarDays, Compass, Crown, LocateFixed } from "lucide-react";
 import { Toaster } from "@/components/ui/sonner";
@@ -32,19 +32,33 @@ export const Route = createFileRoute("/qibla")({
 });
 
 type OrientationEventCtor = typeof DeviceOrientationEvent & {
-  requestPermission?: () => Promise<"granted" | "denied">;
+  requestPermission?: (absolute?: boolean) => Promise<"granted" | "denied">;
+};
+
+const norm360 = (a: number) => ((a % 360) + 360) % 360;
+/** shortest signed difference from b to a, in (-180, 180] */
+const shortestDiff = (a: number, b: number) => {
+  let d = norm360(a - b);
+  if (d > 180) d -= 360;
+  return d;
 };
 
 function QiblaPage() {
   const { t } = useI18n();
   const { isPremium, loading } = useSubscription();
   const [settings] = useLocalState<Settings>("mtk.settings", DEFAULT_SETTINGS);
-  const [heading, setHeading] = useState<number | null>(null);
+  const [rawHeading, setRawHeading] = useState<number | null>(null);
+  const [smoothHeading, setSmoothHeading] = useState<number | null>(null);
+  const [rotation, setRotation] = useState<number>(0);
   const [compassOn, setCompassOn] = useState(false);
   const [supported, setSupported] = useState(true);
+  const smoothRef = useRef<number | null>(null);
+  const rotationRef = useRef<number>(0);
 
   const bearing = qiblaBearing(settings.latitude, settings.longitude);
   const distance = distanceToKaaba(settings.latitude, settings.longitude);
+  const bearingRef = useRef(bearing);
+  bearingRef.current = bearing;
 
   useEffect(() => {
     if (typeof window !== "undefined" && !("DeviceOrientationEvent" in window)) {
@@ -54,25 +68,42 @@ function QiblaPage() {
 
   useEffect(() => {
     if (!compassOn) return;
+
+    const apply = (h: number) => {
+      const heading = norm360(h);
+      setRawHeading(heading);
+      // circular exponential smoothing
+      const prev = smoothRef.current;
+      const next = prev === null ? heading : norm360(prev + 0.15 * shortestDiff(heading, prev));
+      smoothRef.current = next;
+      setSmoothHeading(next);
+      // continuous needle rotation (never takes the long way around)
+      const target = bearingRef.current - next;
+      const nextRot = rotationRef.current + shortestDiff(target, rotationRef.current);
+      rotationRef.current = nextRot;
+      setRotation(nextRot);
+    };
+
     const handler = (e: DeviceOrientationEvent) => {
       const webkit = (e as DeviceOrientationEvent & { webkitCompassHeading?: number })
         .webkitCompassHeading;
-      if (typeof webkit === "number") setHeading(webkit);
-      else if (typeof e.alpha === "number") setHeading(360 - e.alpha);
+      if (typeof webkit === "number" && !Number.isNaN(webkit)) return apply(webkit);
+      if (e.absolute === true && typeof e.alpha === "number") return apply(360 - e.alpha);
     };
-    window.addEventListener("deviceorientationabsolute", handler as EventListener);
-    window.addEventListener("deviceorientation", handler as EventListener);
-    return () => {
-      window.removeEventListener("deviceorientationabsolute", handler as EventListener);
-      window.removeEventListener("deviceorientation", handler as EventListener);
-    };
+
+    // Prefer absolute orientation; only fall back to `deviceorientation`
+    // (which may still be absolute on iOS via webkitCompassHeading).
+    const useAbsolute = "ondeviceorientationabsolute" in window;
+    const eventName = useAbsolute ? "deviceorientationabsolute" : "deviceorientation";
+    window.addEventListener(eventName, handler as EventListener);
+    return () => window.removeEventListener(eventName, handler as EventListener);
   }, [compassOn]);
 
   const enableCompass = async () => {
     const ctor = window.DeviceOrientationEvent as OrientationEventCtor | undefined;
     if (ctor?.requestPermission) {
       try {
-        const res = await ctor.requestPermission();
+        const res = await ctor.requestPermission(true);
         if (res !== "granted") return setSupported(false);
       } catch {
         return setSupported(false);
@@ -81,7 +112,8 @@ function QiblaPage() {
     setCompassOn(true);
   };
 
-  const rotation = heading === null ? bearing : bearing - heading;
+  const heading = smoothHeading;
+  const needleRotation = heading === null ? bearing : rotation;
 
   return (
     <main className="min-h-screen bg-background">
@@ -125,10 +157,7 @@ function QiblaPage() {
                     {p}
                   </span>
                 ))}
-                <div
-                  className="absolute inset-0 transition-transform duration-200"
-                  style={{ transform: `rotate(${rotation}deg)` }}
-                >
+                <div className="absolute inset-0" style={{ transform: `rotate(${needleRotation}deg)` }}>
                   <div className="absolute left-1/2 top-[8%] h-[42%] w-1 -translate-x-1/2 rounded-full bg-primary" />
                   <div className="absolute left-1/2 top-[5%] h-3 w-3 -translate-x-1/2 rotate-45 rounded-sm bg-primary" />
                 </div>
@@ -158,6 +187,12 @@ function QiblaPage() {
                 )}
               </p>
             </div>
+
+            <p className="text-center font-mono text-[11px] text-muted-foreground">
+              qibla {bearing.toFixed(1)}° · raw {rawHeading === null ? "–" : rawHeading.toFixed(1)}°
+              · smooth {smoothHeading === null ? "–" : smoothHeading.toFixed(1)}° · needle{" "}
+              {norm360(needleRotation).toFixed(1)}°
+            </p>
 
             {!compassOn && supported && (
               <Button className="w-full" onClick={enableCompass}>
