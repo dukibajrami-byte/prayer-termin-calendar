@@ -17,6 +17,7 @@ import { useNativeOAuthHandoff } from "@/hooks/useNativeOAuthHandoff";
 import { NativeReturnBanner } from "@/components/NativeReturnBanner";
 import { TodosProvider } from "@/hooks/useTodos";
 import { useTodoReminders } from "@/hooks/useTodoReminders";
+import { useEventReminders } from "@/hooks/useEventReminders";
 
 function NotFoundComponent() {
   return (
@@ -144,6 +145,7 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function GlobalTodoReminders() {
   useTodoReminders();
+  useEventReminders();
   return null;
 }
 
