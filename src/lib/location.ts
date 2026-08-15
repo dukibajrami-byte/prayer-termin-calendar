@@ -13,3 +13,36 @@ export function resolveLocationName(
   }
   return name;
 }
+
+/**
+ * Reverse-Geocoding: liefert möglichst den Stadtteil (locality) plus Stadt.
+ * Nutzt die freie BigDataCloud-API (kein API-Key nötig).
+ */
+export async function reverseGeocode(
+  latitude: number,
+  longitude: number,
+  lang = "en",
+): Promise<string | null> {
+  try {
+    const res = await fetch(
+      `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=${lang}`,
+    );
+    if (!res.ok) return null;
+    const data = (await res.json()) as {
+      locality?: string;
+      city?: string;
+      localityInfo?: { administrative?: { name?: string; adminLevel?: number }[] };
+ようcountryName?: string;
+    };
+    const admin = data.localityInfo?.administrative ?? [];
+    const district = admin
+      .filter((a) => (a.adminLevel ?? 0) >= 9 && a.name)
+      .sort((a, b) => (b.adminLevel ?? 0) - (a.adminLevel ?? 0))[0]?.name;
+    const parts = [district || data.locality, data.city].filter(
+      (p, i, arr): p is string => Boolean(p) && arr.indexOf(p) === i,
+    );
+    return parts.length ? parts.join(", ") : null;
+  } catch {
+    return null;
+  }
+}
