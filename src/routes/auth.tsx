@@ -55,16 +55,27 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
+  const [nativeDebugMsg, setNativeDebugMsg] = useState<string | null>(null);
   const target = next ?? "/premium";
 
   useEffect(() => {
-    if (loading || !user) return;
+    if (loading) return;
     // Opened from the native app in the system browser: hand the session back
     // to the app through the deep link instead of navigating here.
-    if (native && session) {
-      handoffSessionToNativeApp(session, target);
+    if (native) {
+      if (session) {
+        // eslint-disable-next-line no-console
+        console.log("[native-oauth-debug] Valid Supabase session exists before handoff");
+        setNativeDebugMsg("Native session ready");
+        handoffSessionToNativeApp(session, target);
+      } else {
+        // eslint-disable-next-line no-console
+        console.log("[native-oauth-debug] No Supabase session available for native handoff");
+        setNativeDebugMsg("Native session missing");
+      }
       return;
     }
+    if (!user) return;
     void navigate({ to: target });
   }, [loading, user, session, native, navigate, target]);
 
