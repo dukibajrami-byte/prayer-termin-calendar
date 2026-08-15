@@ -39,6 +39,48 @@ export function handoffSessionToNativeApp(session: Session, next: string): void 
 
 export type NativeAuthResult = { ok: boolean; next: string };
 
+/**
+ * The native login intent has to survive the full Google OAuth round trip in
+ * the system browser (the `native=1` query param is lost on the way back).
+ * We therefore persist it in localStorage with a short TTL.
+ */
+const PENDING_KEY = "muslimtermin.native-oauth-pending";
+const PENDING_TTL_MS = 15 * 60 * 1000;
+
+export function markNativeHandoffPending(next: string): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(PENDING_KEY, JSON.stringify({ next, at: Date.now() }));
+  } catch {
+    /* storage unavailable */
+  }
+}
+
+export function getPendingNativeHandoff(): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(PENDING_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as { next?: string; at?: number };
+    if (!parsed.at || Date.now() - parsed.at > PENDING_TTL_MS) {
+      window.localStorage.removeItem(PENDING_KEY);
+      return null;
+    }
+    return typeof parsed.next === "string" && parsed.next.startsWith("/") ? parsed.next : "/";
+  } catch {
+    return null;
+  }
+}
+
+export function clearPendingNativeHandoff(): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.removeItem(PENDING_KEY);
+  } catch {
+    /* storage unavailable */
+  }
+}
+
 /** Parses a deep link and, if it carries tokens, establishes the session. */
 export async function consumeNativeAuthUrl(url: string): Promise<NativeAuthResult | null> {
   if (!url.startsWith(NATIVE_AUTH_CALLBACK)) return null;
