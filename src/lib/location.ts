@@ -32,7 +32,7 @@ export async function reverseGeocode(
       locality?: string;
       city?: string;
       localityInfo?: { administrative?: { name?: string; adminLevel?: number }[] };
-ようcountryName?: string;
+      countryName?: string;
     };
     const admin = data.localityInfo?.administrative ?? [];
     const district = admin
