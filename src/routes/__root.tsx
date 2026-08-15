@@ -15,6 +15,8 @@ import { I18nProvider } from "@/lib/i18n";
 import { useNativeAuthDeepLink } from "@/hooks/useNativeAuthDeepLink";
 import { useNativeOAuthHandoff } from "@/hooks/useNativeOAuthHandoff";
 import { NativeReturnBanner } from "@/components/NativeReturnBanner";
+import { TodosProvider } from "@/hooks/useTodos";
+import { useTodoReminders } from "@/hooks/useTodoReminders";
 
 function NotFoundComponent() {
   return (
@@ -140,6 +142,11 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+function GlobalTodoReminders() {
+  useTodoReminders();
+  return null;
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   useNativeAuthDeepLink();
@@ -148,9 +155,13 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <I18nProvider>
-        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-        <Outlet />
-        {nativeReturnUrl ? <NativeReturnBanner url={nativeReturnUrl} /> : null}
+        <TodosProvider>
+          {/* Single global instance of the to-do reminder scheduler. */}
+          <GlobalTodoReminders />
+          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+          <Outlet />
+          {nativeReturnUrl ? <NativeReturnBanner url={nativeReturnUrl} /> : null}
+        </TodosProvider>
       </I18nProvider>
     </QueryClientProvider>
   );
