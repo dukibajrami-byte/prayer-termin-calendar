@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/hooks/useAuth";
+import { NativeReturnBanner } from "@/components/NativeReturnBanner";
 import {
   handoffSessionToNativeApp,
   isNativeApp,
@@ -59,6 +60,7 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [nativeDebugMsg, setNativeDebugMsg] = useState<string | null>(null);
+  const [nativeReturnUrl, setNativeReturnUrl] = useState<string | null>(null);
   const target = next ?? "/premium";
   // `native=1` is only present on the first hop; after the Google round trip we
   // rely on the persisted flag so we never fall through to the web flow.
@@ -78,7 +80,7 @@ function AuthPage() {
         console.log("[native-oauth-debug] Valid Supabase session exists before handoff");
         setNativeDebugMsg("Native session ready");
         clearPendingNativeHandoff();
-        handoffSessionToNativeApp(session, target);
+        setNativeReturnUrl(handoffSessionToNativeApp(session, target));
       } else {
         // eslint-disable-next-line no-console
         console.log("[native-oauth-debug] No Supabase session available for native handoff");
@@ -137,6 +139,7 @@ function AuthPage() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-background px-4">
       <Toaster />
+      {nativeReturnUrl ? <NativeReturnBanner url={nativeReturnUrl} /> : null}
       <div className="w-full max-w-sm space-y-5 rounded-2xl border border-border bg-card p-6">
         {nativeDebugMsg && (
           <div
