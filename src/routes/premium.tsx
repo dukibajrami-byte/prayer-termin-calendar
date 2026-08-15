@@ -39,7 +39,7 @@ function PremiumPage() {
   const { t } = useI18n();
   const navigate = useNavigate();
   const { user, loading: authLoading, signOut } = useAuth();
-  const { isPremium, subscription, loading } = useSubscription();
+  const { isPremium, subscription, hasGrant, hasActiveSubscription, loading } = useSubscription();
   const [checkoutPrice, setCheckoutPrice] = useState<string | null>(null);
 
   const start = (priceId: string) => {
@@ -100,16 +100,21 @@ function PremiumPage() {
             <p className="flex items-center justify-center gap-2 font-medium">
               <Crown className="h-4 w-4 text-primary" /> {t("premium.active")}
             </p>
-            {subscription?.current_period_end && (
+            {hasGrant && (
+              <p className="text-sm text-muted-foreground">{t("premium.granted")}</p>
+            )}
+            {subscription?.current_period_end && !hasGrant && (
               <p className="text-sm text-muted-foreground">
                 {t(subscription.cancel_at_period_end ? "premium.endsOn" : "premium.renewsOn", {
                   date: new Date(subscription.current_period_end).toLocaleDateString(),
                 })}
               </p>
             )}
-            <Button variant="outline" onClick={manage}>
-              {t("premium.manage")}
-            </Button>
+            {hasActiveSubscription && !hasGrant && (
+              <Button variant="outline" onClick={manage}>
+                {t("premium.manage")}
+              </Button>
+            )}
             <div>
               <Button variant="ghost" size="sm" onClick={signOutNow}>
                 {t("auth.signOut")}
