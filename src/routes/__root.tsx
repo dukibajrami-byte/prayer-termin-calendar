@@ -14,6 +14,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { I18nProvider } from "@/lib/i18n";
 import { useNativeAuthDeepLink } from "@/hooks/useNativeAuthDeepLink";
 import { useNativeOAuthHandoff } from "@/hooks/useNativeOAuthHandoff";
+import { NativeReturnBanner } from "@/components/NativeReturnBanner";
 
 function NotFoundComponent() {
   return (
@@ -142,13 +143,14 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   useNativeAuthDeepLink();
-  useNativeOAuthHandoff();
+  const nativeReturnUrl = useNativeOAuthHandoff();
 
   return (
     <QueryClientProvider client={queryClient}>
       <I18nProvider>
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <Outlet />
+        {nativeReturnUrl ? <NativeReturnBanner url={nativeReturnUrl} /> : null}
       </I18nProvider>
     </QueryClientProvider>
   );
