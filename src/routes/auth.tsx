@@ -60,8 +60,9 @@ function AuthPage() {
   const [oauthDebug, setOauthDebug] = useState<{ redirectUri: string; nativeFlow: boolean } | null>(null);
   const target = next ?? "/premium";
   // `native=1` is only present on the first hop; after the Google round trip we
-  // rely on the persisted flag so we never fall through to the web flow.
-  const nativeFlow = Boolean(native) || getPendingNativeHandoff() !== null;
+  // rely on the persisted flag (or the Capacitor bridge itself) so we never fall
+  // through to the web flow.
+  const nativeFlow = Boolean(native) || isNativeApp() || getPendingNativeHandoff() !== null;
 
   useEffect(() => {
     if (native) markNativeHandoffPending(target);
