@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { createLovableAuth } from "@lovable.dev/cloud-auth-js";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -14,7 +14,19 @@ import {
   getPendingNativeHandoff,
   markNativeHandoffPending,
   startNativeSignIn,
+  WEB_ORIGIN,
 } from "@/lib/native-auth";
+
+const lovableAuth = createLovableAuth();
+
+type OAuthDebugState = {
+  phase: "before" | "after";
+  redirectUri: string;
+  nativeFlow: boolean;
+  windowHref: string;
+  redirected: boolean | null;
+  oauthUrl: string | null;
+};
 
 export const Route = createFileRoute("/auth")({
   ssr: false,
@@ -57,7 +69,7 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [nativeDebugMsg, setNativeDebugMsg] = useState<string | null>(null);
-  const [oauthDebug, setOauthDebug] = useState<{ redirectUri: string; nativeFlow: boolean } | null>(null);
+  const [oauthDebug, setOauthDebug] = useState<OAuthDebugState | null>(null);
   const target = next ?? "/premium";
   // `native=1` is only present on the first hop; after the Google round trip we
   // rely on the persisted flag (or the Capacitor bridge itself) so we never fall
@@ -124,19 +136,50 @@ function AuthPage() {
     // Native flow returns to a dedicated callback route that owns the deep-link
     // handoff; the web flow keeps returning to /auth as before.
     const redirectUri = nativeFlow
-      ? `${window.location.origin}/native-auth-callback?next=${encodeURIComponent(target)}`
+      ? `${WEB_ORIGIN}/native-auth-callback?next=${encodeURIComponent(target)}`
       : `${window.location.origin}/auth?next=${encodeURIComponent(target)}`;
-    setOauthDebug({ redirectUri, nativeFlow });
+
+    // cloud-auth-js generates a random `state` internally and does not expose
+    // the final broker URL. This is the otherwise exact, token-free request URL.
+    const oauthUrl = new URL("/~oauth/initiate", window.location.origin);
+    oauthUrl.searchParams.set("provider", "google");
+    oauthUrl.searchParams.set("redirect_uri", redirectUri);
+    const beforeDebug: OAuthDebugState = {
+      phase: "before",
+      redirectUri,
+      nativeFlow,
+      windowHref: window.location.href,
+      redirected: null,
+      oauthUrl: oauthUrl.toString(),
+    };
+    setOauthDebug(beforeDebug);
+    await new Promise<void>((resolve) => window.requestAnimationFrame(() => resolve()));
     // eslint-disable-next-line no-console
-    console.log("[oauth-debug] redirect_uri:", redirectUri, "nativeFlow:", nativeFlow);
-    const result = await lovable.auth.signInWithOAuth("google", {
+    console.log("[oauth-debug:before]", beforeDebug);
+    const result = await lovableAuth.signInWithOAuth("google", {
       redirect_uri: redirectUri,
     });
+
+    const afterDebug: OAuthDebugState = {
+      ...beforeDebug,
+      phase: "after",
+      windowHref: window.location.href,
+      redirected: result.redirected === true,
+    };
+    setOauthDebug(afterDebug);
+    // Deliberately log only redirect metadata, never the returned tokens.
+    // eslint-disable-next-line no-console
+    console.log("[oauth-debug:after]", afterDebug);
     if (result.error) {
       toast.error(String(result.error));
       return;
     }
     if (result.redirected) return;
+    const { error: sessionError } = await supabase.auth.setSession(result.tokens);
+    if (sessionError) {
+      toast.error(sessionError.message);
+      return;
+    }
     if (!nativeFlow) void navigate({ to: target });
   };
 
@@ -157,9 +200,26 @@ function AuthPage() {
         )}
         {oauthDebug && (
           <div className="rounded-lg border border-border bg-muted/50 p-3 space-y-1">
-            <p className="text-xs font-medium text-muted-foreground">OAuth debug</p>
-            <p className="text-xs break-all font-mono text-foreground">{oauthDebug.redirectUri}</p>
-            <p className="text-xs text-muted-foreground">nativeFlow: {String(oauthDebug.nativeFlow)}</p>
+            <p className="text-xs font-medium text-muted-foreground">
+              OAuth debug ({oauthDebug.phase})
+            </p>
+            <p className="text-xs break-all font-mono text-foreground">
+              redirect_uri: {oauthDebug.redirectUri}
+            </p>
+            <p className="text-xs break-all font-mono text-foreground">
+              window.location.href: {oauthDebug.windowHref}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              nativeFlow: {String(oauthDebug.nativeFlow)}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              result.redirected: {oauthDebug.redirected === null ? "pending" : String(oauthDebug.redirected)}
+            </p>
+            {oauthDebug.oauthUrl && (
+              <p className="text-xs break-all font-mono text-muted-foreground">
+                OAuth URL (without internal state): {oauthDebug.oauthUrl}
+              </p>
+            )}
           </div>
         )}
         <div className="space-y-1">
