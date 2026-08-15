@@ -154,6 +154,13 @@ function AuthPage() {
             {nativeDebugMsg}
           </div>
         )}
+        {oauthDebug && (
+          <div className="rounded-lg border border-border bg-muted/50 p-3 space-y-1">
+            <p className="text-xs font-medium text-muted-foreground">OAuth debug</p>
+            <p className="text-xs break-all font-mono text-foreground">{oauthDebug.redirectUri}</p>
+            <p className="text-xs text-muted-foreground">nativeFlow: {String(oauthDebug.nativeFlow)}</p>
+          </div>
+        )}
         <div className="space-y-1">
           <h1 className="font-display text-xl font-semibold">
             {mode === "signin" ? t("auth.signIn") : t("auth.signUp")}
