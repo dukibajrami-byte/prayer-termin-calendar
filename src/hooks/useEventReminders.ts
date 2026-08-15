@@ -6,13 +6,17 @@ import { fmt } from "@/lib/dates";
 import { isNativePlatform, ensureNativeNotificationPermission } from "@/lib/native-notifications";
 import type { CalEvent } from "@/lib/store";
 
-/** Stabile, positive 31-Bit-ID aus der Event-ID (für LocalNotifications). */
+/**
+ * Stabile, positive Notification-ID aus der Event-ID.
+ * Bereich: 2_000_000_001 – 2_100_000_000 (innerhalb des Android 32-Bit-Int-Limits
+ * von 2_147_483_647). To-Dos nutzen 1 – 1_999_999_999, also überschneidungsfrei.
+ */
 export function eventNotificationId(id: string): number {
   let hash = 7;
   for (let i = 0; i < id.length; i++) {
     hash = (hash * 33 + id.charCodeAt(i)) | 0;
   }
-  return (Math.abs(hash) % 2_000_000_000) + 2_000_000_001;
+  return (Math.abs(hash) % 100_000_000) + 2_000_000_001;
 }
 
 function signature(event: CalEvent, at: number, title: string, body: string) {
@@ -72,8 +76,8 @@ export function useEventReminders() {
       if (toCancel.length) {
         try {
           await LocalNotifications.cancel({ notifications: toCancel });
-        } catch {
-          /* ignore */
+        } catch (error) {
+          console.error("[event-reminders] cancel failed", toCancel, error);
         }
       }
       if (cancelled) return;
@@ -90,8 +94,23 @@ export function useEventReminders() {
             })),
           });
           for (const [id, n] of toSchedule) scheduled.current.set(id, n.sig);
-        } catch {
-          /* ignore */
+          try {
+            const pending = await LocalNotifications.getPending();
+            const pendingIds = new Set(pending.notifications.map((n) => n.id));
+            for (const [id] of toSchedule) {
+              console.info(
+                `[event-reminders] notification ${id} pending: ${pendingIds.has(id)}`,
+              );
+            }
+          } catch (error) {
+            console.error("[event-reminders] getPending failed", error);
+          }
+        } catch (error) {
+          console.error(
+            "[event-reminders] schedule failed",
+            toSchedule.map(([id]) => id),
+            error,
+          );
         }
       }
     })();
