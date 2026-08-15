@@ -98,6 +98,8 @@ const de: Dict = {
   "pwa.iosHint": "In Safari: Teilen-Symbol antippen und „Zum Home-Bildschirm“ wählen.",
   "notif.event": "Termin: {title}",
   "notif.eventBody": "Beginnt um {time} Uhr.",
+  "notif.todo": "Aufgabe: {title}",
+  "notif.todoBody": "Fällig um {time}.",
   "notif.prayerSoon": "{label} bald",
   "notif.prayerBody": "Gebetsbeginn um {time} Uhr.",
   "auth.signIn": "Anmelden",
@@ -185,6 +187,13 @@ const de: Dict = {
   "todo.premiumHint": "To-Do-Notizen sind ein Premium-Feature – gratis bis zu {n} Aufgaben.",
   "todo.back": "Zurück zum Kalender",
   "todo.overdue": "Überfällig",
+  "todo.time": "Uhrzeit",
+  "todo.reminder": "Erinnerung",
+  "todo.remindNone": "Keine Erinnerung",
+  "todo.remindAtDue": "Zur Fälligkeit",
+  "todo.remindBefore": "{m} Min. vorher",
+  "todo.remindNeedsDue": "Erinnerung braucht ein Fälligkeitsdatum.",
+  "todo.remindPremium": "Erinnerungen für Aufgaben sind ein Premium-Feature.",
 };
 
 
@@ -274,6 +283,8 @@ const en: Dict = {
   "pwa.iosHint": "In Safari: tap the Share icon and choose \"Add to Home Screen\".",
   "notif.event": "Event: {title}",
   "notif.eventBody": "Starts at {time}.",
+  "notif.todo": "Task: {title}",
+  "notif.todoBody": "Due at {time}.",
   "notif.prayerSoon": "{label} soon",
   "notif.prayerBody": "Prayer begins at {time}.",
   "auth.signIn": "Sign in",
@@ -361,6 +372,13 @@ const en: Dict = {
   "todo.premiumHint": "To-do notes are a Premium feature – free up to {n} tasks.",
   "todo.back": "Back to calendar",
   "todo.overdue": "Overdue",
+  "todo.time": "Time",
+  "todo.reminder": "Reminder",
+  "todo.remindNone": "No reminder",
+  "todo.remindAtDue": "At due time",
+  "todo.remindBefore": "{m} min before",
+  "todo.remindNeedsDue": "A reminder needs a due date.",
+  "todo.remindPremium": "Task reminders are a Premium feature.",
 };
 
 
@@ -450,6 +468,8 @@ const ar: Dict = {
   "pwa.iosHint": "في سفاري: اضغط رمز المشاركة ثم اختر «إضافة إلى الشاشة الرئيسية».",
   "notif.event": "موعد: {title}",
   "notif.eventBody": "يبدأ الساعة {time}.",
+  "notif.todo": "مهمة: {title}",
+  "notif.todoBody": "مستحقة الساعة {time}.",
   "notif.prayerSoon": "{label} قريباً",
   "notif.prayerBody": "تبدأ الصلاة الساعة {time}.",
   "auth.signIn": "تسجيل الدخول",
@@ -626,6 +646,8 @@ const sq: Dict = {
   "pwa.iosHint": "Në Safari: prek ikonën e ndarjes dhe zgjidh „Shto në ekranin bazë“.",
   "notif.event": "Takim: {title}",
   "notif.eventBody": "Fillon në {time}.",
+  "notif.todo": "Detyrë: {title}",
+  "notif.todoBody": "Skadon në {time}.",
   "notif.prayerSoon": "{label} së shpejti",
   "notif.prayerBody": "Namazi fillon në {time}.",
   "auth.signIn": "Hyr",
