@@ -107,7 +107,12 @@ export function useEventReminders() {
 
       const toSchedule = [...wanted.entries()].filter(([id]) => !scheduled.current.has(id));
       if (toSchedule.length) {
+        for (const [id] of toSchedule) delivered.current.delete(id);
         try {
+          console.info(
+            "[event-reminders] scheduling",
+            toSchedule.map(([id, n]) => `${id}@${n.at.toISOString()}`),
+          );
           await LocalNotifications.schedule({
             notifications: toSchedule.map(([id, n]) => ({
               id,
