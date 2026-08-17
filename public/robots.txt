@@ -13,4 +13,4 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://muslimtermin.com/sitemap.xml
+Sitemap: https://muslim-calendar.com/sitemap.xml
