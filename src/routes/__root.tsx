@@ -87,7 +87,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       {
         name: "google-site-verification",
-        content: "UYGMaqWrxLHmi32_5XjTEjWl8D0e7bJuS_nX7i3AIwk",
+        content: "O0ubBKi8jxAr4PNdTgV4jG3CJmWT5Y-4X69-zs54l2o",
       },
       { title: "Muslimischer Terminkalender" },
       {
