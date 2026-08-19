@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { CalendarDays, Compass, Crown, LocateFixed } from "lucide-react";
 import { Toaster } from "@/components/ui/sonner";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n";
 import { useSubscription } from "@/hooks/useSubscription";
@@ -47,7 +48,6 @@ function QiblaPage() {
   const { t } = useI18n();
   const { isPremium, loading } = useSubscription();
   const [settings] = useLocalState<Settings>("mtk.settings", DEFAULT_SETTINGS);
-  const [rawHeading, setRawHeading] = useState<number | null>(null);
   const [smoothHeading, setSmoothHeading] = useState<number | null>(null);
   const [rotation, setRotation] = useState<number>(0);
   const [compassOn, setCompassOn] = useState(false);
@@ -71,7 +71,6 @@ function QiblaPage() {
 
     const apply = (h: number) => {
       const heading = norm360(h);
-      setRawHeading(heading);
       // circular exponential smoothing
       const prev = smoothRef.current;
       const next = prev === null ? heading : norm360(prev + 0.15 * shortestDiff(heading, prev));
