@@ -114,6 +114,7 @@ function QiblaPage() {
 
   const heading = smoothHeading;
   const needleRotation = heading === null ? bearing : rotation;
+  const aligned = heading !== null && Math.abs(shortestDiff(bearing, heading)) <= 5;
 
   return (
     <main className="min-h-screen bg-background">
@@ -144,34 +145,87 @@ function QiblaPage() {
           </div>
         ) : (
           <>
-            <div className="rounded-2xl border border-border bg-card p-6">
-              <div className="relative mx-auto aspect-square w-full max-w-xs rounded-full border-2 border-border">
-                {["N", "E", "S", "W"].map((p, i) => (
-                  <span
-                    key={p}
-                    className="absolute left-1/2 top-1/2 text-xs font-medium text-muted-foreground"
-                    style={{
-                      transform: `translate(-50%, -50%) rotate(${i * 90 + (heading === null ? 0 : -heading)}deg) translateY(-45%) `,
-                    }}
+            <div className="rounded-3xl border border-border bg-card p-6 shadow-sm">
+              <div
+                className={cn(
+                  "relative mx-auto aspect-square w-full max-w-xs rounded-full p-[3px] transition-colors",
+                  aligned ? "bg-primary/70" : "bg-border",
+                )}
+              >
+                <div className="relative h-full w-full overflow-hidden rounded-full bg-gradient-to-b from-secondary to-card">
+                  {/* rotating dial: ticks + cardinal points */}
+                  <div
+                    className="absolute inset-0"
+                    style={{ transform: `rotate(${heading === null ? 0 : -heading}deg)` }}
                   >
-                    {p}
-                  </span>
-                ))}
-                <div className="absolute inset-0" style={{ transform: `rotate(${needleRotation}deg)` }}>
-                  <div className="absolute left-1/2 top-[8%] h-[42%] w-1 -translate-x-1/2 rounded-full bg-primary" />
-                  <div className="absolute left-1/2 top-[5%] h-3 w-3 -translate-x-1/2 rotate-45 rounded-sm bg-primary" />
+                    {Array.from({ length: 72 }, (_, i) => {
+                      const major = i % 6 === 0;
+                      return (
+                        <span
+                          key={i}
+                          className={cn(
+                            "absolute left-1/2 top-0 origin-[50%_calc(50vw)] rounded-full",
+                            major ? "bg-foreground/50" : "bg-foreground/15",
+                          )}
+                          style={{
+                            width: major ? 2 : 1,
+                            height: major ? "9%" : "5%",
+                            transform: `translateX(-50%) rotate(${i * 5}deg)`,
+                            transformOrigin: "50% calc(50% * (100 / 1))",
+                          }}
+                        />
+                      );
+                    })}
+                    {["N", "E", "S", "W"].map((p, i) => (
+                      <span
+                        key={p}
+                        className={cn(
+                          "absolute left-1/2 top-1/2 text-sm font-semibold",
+                          i === 0 ? "text-primary" : "text-muted-foreground",
+                        )}
+                        style={{
+                          transform: `translate(-50%, -50%) rotate(${i * 90}deg) translateY(-38%) rotate(${-i * 90}deg)`,
+                        }}
+                      >
+                        {p}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* qibla needle */}
+                  <div className="absolute inset-0" style={{ transform: `rotate(${needleRotation}deg)` }}>
+                    <div
+                      className={cn(
+                        "absolute left-1/2 top-[16%] h-[34%] w-[3px] -translate-x-1/2 rounded-full",
+                        aligned ? "bg-primary" : "bg-primary/70",
+                      )}
+                    />
+                    <div
+                      className={cn(
+                        "absolute left-1/2 top-[7%] grid h-7 w-7 -translate-x-1/2 place-items-center rounded-md text-[13px]",
+                        aligned ? "bg-primary text-primary-foreground" : "bg-primary/15 text-primary",
+                      )}
+                    >
+                      🕋
+                    </div>
+                    <div className="absolute bottom-[20%] left-1/2 h-[24%] w-[2px] -translate-x-1/2 rounded-full bg-muted-foreground/30" />
+                  </div>
+
+                  <div className="absolute left-1/2 top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-card bg-foreground" />
+
+                  {/* fixed top marker */}
+                  <div className="absolute left-1/2 top-0 h-3 w-[2px] -translate-x-1/2 rounded-b-full bg-accent" />
                 </div>
-                <div className="absolute left-1/2 top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-foreground" />
               </div>
 
-              <div className="mt-5 grid grid-cols-2 gap-3 text-center">
-                <div className="rounded-xl bg-secondary p-3">
+              <div className="mt-6 grid grid-cols-2 gap-3 text-center">
+                <div className="rounded-2xl border border-border/60 bg-secondary/70 p-3">
                   <p className="text-xs text-muted-foreground">{t("qibla.bearing")}</p>
                   <p className="font-display text-xl">
                     {bearing.toFixed(1)}° {compassPoint(bearing)}
                   </p>
                 </div>
-                <div className="rounded-xl bg-secondary p-3">
+                <div className="rounded-2xl border border-border/60 bg-secondary/70 p-3">
                   <p className="text-xs text-muted-foreground">{t("qibla.distance")}</p>
                   <p className="font-display text-xl">{distance.toLocaleString()} km</p>
                 </div>
@@ -187,12 +241,6 @@ function QiblaPage() {
                 )}
               </p>
             </div>
-
-            <p className="text-center font-mono text-[11px] text-muted-foreground">
-              qibla {bearing.toFixed(1)}° · raw {rawHeading === null ? "–" : rawHeading.toFixed(1)}°
-              · smooth {smoothHeading === null ? "–" : smoothHeading.toFixed(1)}° · needle{" "}
-              {norm360(needleRotation).toFixed(1)}°
-            </p>
 
             {!compassOn && supported && (
               <Button className="w-full" onClick={enableCompass}>
