@@ -161,19 +161,19 @@ function QiblaPage() {
                     {Array.from({ length: 72 }, (_, i) => {
                       const major = i % 6 === 0;
                       return (
-                        <span
+                        <div
                           key={i}
-                          className={cn(
-                            "absolute left-1/2 top-0 origin-[50%_calc(50vw)] rounded-full",
-                            major ? "bg-foreground/50" : "bg-foreground/15",
-                          )}
-                          style={{
-                            width: major ? 2 : 1,
-                            height: major ? "9%" : "5%",
-                            transform: `translateX(-50%) rotate(${i * 5}deg)`,
-                            transformOrigin: "50% calc(50% * (100 / 1))",
-                          }}
-                        />
+                          className="absolute inset-0"
+                          style={{ transform: `rotate(${i * 5}deg)` }}
+                        >
+                          <span
+                            className={cn(
+                              "absolute left-1/2 top-[3%] -translate-x-1/2 rounded-full",
+                              major ? "bg-foreground/50" : "bg-foreground/15",
+                            )}
+                            style={{ width: major ? 2 : 1, height: major ? "7%" : "4%" }}
+                          />
+                        </div>
                       );
                     })}
                     {["N", "E", "S", "W"].map((p, i) => (
