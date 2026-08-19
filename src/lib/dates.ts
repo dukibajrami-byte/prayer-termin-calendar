@@ -1,8 +1,8 @@
-import { de, enUS, arSA, sq } from "date-fns/locale";
+import { de, enUS, arSA, sq, tr } from "date-fns/locale";
 import type { Locale } from "date-fns";
 import { addDays, format, startOfWeek } from "date-fns";
 
-const LOCALES: Record<string, Locale> = { de, en: enUS, ar: arSA, sq };
+const LOCALES: Record<string, Locale> = { de, en: enUS, ar: arSA, sq, tr };
 
 let current: Locale = de;
 
