@@ -238,17 +238,17 @@ function Index() {
     <main className="min-h-screen bg-background">
       <Toaster />
       <div className="mx-auto max-w-6xl space-y-5 px-0 py-6 sm:px-4">
-        <header className="flex flex-wrap items-center justify-between gap-3 px-4 sm:px-0">
-          <div>
-            <h1 className="font-display text-2xl font-semibold text-foreground">
+        <header className="flex flex-wrap items-center justify-between gap-3 px-3 sm:px-0">
+          <div className="min-w-0">
+            <h1 className="font-display text-xl font-semibold text-foreground sm:text-2xl">
               {t("app.headline")}
             </h1>
             <p className="text-sm text-muted-foreground">
               {t("app.subtitle")}
             </p>
           </div>
-          <div className="flex flex-col items-end gap-2 sm:flex-row sm:items-center">
-            <div className="flex items-center gap-2">
+          <div className="flex w-full min-w-0 flex-col items-stretch gap-2 sm:w-auto sm:flex-row sm:items-center">
+            <div className="flex flex-wrap items-center gap-2">
               <div className="flex items-center rounded-md border border-border p-0.5">
                 {(Object.keys(LANGS) as Lang[]).map((code) => (
                   <button
@@ -277,7 +277,7 @@ function Index() {
                 </Link>
               </Button>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <Button variant="outline" size="sm" onClick={() => setCalendarOpen(true)}>
                 <CalendarDays className="mr-1 h-4 w-4" /> {t("calendars.manage")}
               </Button>
