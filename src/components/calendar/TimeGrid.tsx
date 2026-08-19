@@ -7,7 +7,7 @@ import { getPrayerSlots } from "@/lib/prayer";
 import { holidaysOn } from "@/lib/holidays";
 import type { CalEvent, SharedCalendar } from "@/lib/store";
 
-const HOUR_HEIGHT = 56;
+const HOUR_HEIGHT = 52;
 
 interface Props {
   days: Date[];
@@ -36,6 +36,32 @@ export function TimeGrid({
     () => days.map((d) => getPrayerSlots(d, config)),
     [days, config],
   );
+
+  // Static grid: only render the hours that actually contain something,
+  // so day/week views fit without an inner scroll area.
+  const [startHour, endHour] = useMemo(() => {
+    let min = 7;
+    let max = 21;
+    for (const slots of prayersByDay) {
+      for (const p of slots) {
+        min = Math.min(min, p.start.getHours());
+        max = Math.max(max, p.end.getHours() + 1);
+      }
+    }
+    for (const e of events) {
+      const s = new Date(e.start);
+      const en = new Date(e.end);
+      if (days.some((d) => sameDay(s, d))) {
+        min = Math.min(min, s.getHours());
+        max = Math.max(max, en.getHours() + (en.getMinutes() > 0 ? 1 : 0));
+      }
+    }
+    return [Math.max(0, min), Math.min(24, Math.max(max, min + 6))];
+  }, [prayersByDay, events, days]);
+
+  const hours = Array.from({ length: endHour - startHour }, (_, i) => startHour + i);
+  const offset = startHour * HOUR_HEIGHT;
+  const gridHeight = hours.length * HOUR_HEIGHT;
 
   return (
     <div className="surface w-full overflow-hidden [--gutter:44px] sm:[--gutter:56px]">
@@ -73,19 +99,19 @@ export function TimeGrid({
         ))}
       </div>
 
-      <div ref={scrollRef} className="max-h-[62vh] overflow-y-auto">
+      <div ref={scrollRef}>
         <div
           className="relative grid"
           style={{ gridTemplateColumns: `var(--gutter) repeat(${days.length}, minmax(0,1fr))` }}
         >
-          <div className="relative">
-            {Array.from({ length: 24 }, (_, h) => (
+          <div className="relative" style={{ height: gridHeight }}>
+            {hours.map((h) => (
               <div
                 key={h}
                 className="relative text-[11px] text-muted-foreground"
                 style={{ height: HOUR_HEIGHT }}
               >
-                <span className="absolute -top-2 right-2">{h > 0 ? `${String(h).padStart(2, "0")}:00` : ""}</span>
+                <span className="absolute -top-2 right-2">{`${String(h).padStart(2, "0")}:00`}</span>
               </div>
             ))}
           </div>
@@ -93,8 +119,12 @@ export function TimeGrid({
           {days.map((day, dayIndex) => {
             const dayEvents = events.filter((e) => sameDay(new Date(e.start), day));
             return (
-              <div key={day.toISOString()} className="relative border-l border-border">
-                {Array.from({ length: 24 }, (_, h) => (
+              <div
+                key={day.toISOString()}
+                className="relative border-l border-border"
+                style={{ height: gridHeight }}
+              >
+                {hours.map((h) => (
                   <button
                     key={h}
                     type="button"
@@ -110,7 +140,7 @@ export function TimeGrid({
                 ))}
 
                 {prayersByDay[dayIndex]?.map((p: PrayerSlot) => {
-                  const top = (minutesOfDay(p.start) / 60) * HOUR_HEIGHT;
+                  const top = (minutesOfDay(p.start) / 60) * HOUR_HEIGHT - offset;
                   const height = Math.max(
                     18,
                     ((p.end.getTime() - p.start.getTime()) / 3_600_000) * HOUR_HEIGHT,
@@ -143,7 +173,7 @@ export function TimeGrid({
                 {dayEvents.map((e) => {
                   const start = new Date(e.start);
                   const end = new Date(e.end);
-                  const top = (minutesOfDay(start) / 60) * HOUR_HEIGHT;
+                  const top = (minutesOfDay(start) / 60) * HOUR_HEIGHT - offset;
                   const height = Math.max(
                     22,
                     ((end.getTime() - start.getTime()) / 3_600_000) * HOUR_HEIGHT,
@@ -177,7 +207,7 @@ export function TimeGrid({
                 {sameDay(day, now) && (
                   <div
                     className="pointer-events-none absolute inset-x-0 z-30 border-t-2 border-accent"
-                    style={{ top: (minutesOfDay(now) / 60) * HOUR_HEIGHT }}
+                    style={{ top: (minutesOfDay(now) / 60) * HOUR_HEIGHT - offset }}
                   />
                 )}
               </div>
