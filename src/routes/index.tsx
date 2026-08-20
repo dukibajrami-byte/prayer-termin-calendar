@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AccessGate } from "@/components/AccessGate";
 import { createFileRoute } from "@tanstack/react-router";
 import { addDays, addMonths, startOfDay } from "date-fns";
-import { CalendarPlus, CalendarDays, ChevronLeft, ChevronRight, Compass, Crown, ListTodo, Settings2, Sparkles } from "lucide-react";
+import { CalendarPlus, CalendarDays, ChevronLeft, ChevronRight, Compass, ListTodo, Settings2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
