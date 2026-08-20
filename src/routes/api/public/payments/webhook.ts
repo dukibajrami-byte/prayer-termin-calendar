@@ -75,6 +75,25 @@ async function handleSubscriptionDeleted(subscription: any, env: StripeEnv) {
     .eq("environment", env);
 }
 
+async function handleCheckoutCompleted(session: any, env: StripeEnv) {
+  // Delayed payment methods settle later; only fulfill when not "unpaid".
+  if (session.payment_status === "unpaid") return;
+  if (session.mode !== "subscription" || !session.subscription) return;
+
+  const subscriptionId =
+    typeof session.subscription === "string" ? session.subscription : session.subscription.id;
+
+  const { createStripeClient } = await import("@/lib/stripe.server");
+  const stripe = createStripeClient(env);
+  const subscription: any = await stripe.subscriptions.retrieve(subscriptionId);
+
+  // Fall back to the session metadata when the subscription lacks userId.
+  if (!subscription.metadata?.userId && session.metadata?.userId) {
+    subscription.metadata = { ...subscription.metadata, userId: session.metadata.userId };
+  }
+  await handleSubscriptionCreated(subscription, env);
+}
+
 async function handleWebhook(req: Request, env: StripeEnv) {
   const event = await verifyWebhook(req, env);
 
@@ -88,10 +107,15 @@ async function handleWebhook(req: Request, env: StripeEnv) {
     case "customer.subscription.deleted":
       await handleSubscriptionDeleted(event.data.object, env);
       break;
+    case "checkout.session.completed":
+    case "checkout.session.async_payment_succeeded":
+      await handleCheckoutCompleted(event.data.object, env);
+      break;
     default:
       console.log("Unhandled event:", event.type);
   }
 }
+
 
 export const Route = createFileRoute("/api/public/payments/webhook")({
   server: {
