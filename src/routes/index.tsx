@@ -284,11 +284,6 @@ function Index() {
 
           {/* Row 2: actions — horizontally scrollable on narrow screens */}
           <div className="-mx-3 flex items-center gap-2 overflow-x-auto px-3 pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
-            <Button variant="outline" size="sm" className="h-8 shrink-0" asChild>
-              <Link to="/premium">
-                <Crown className="mr-1 h-4 w-4" /> {t("premium.nav")}
-              </Link>
-            </Button>
             <Button
               variant="outline"
               size="sm"
