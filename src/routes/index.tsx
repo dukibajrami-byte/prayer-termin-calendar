@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { AccessGate } from "@/components/AccessGate";
 import { createFileRoute } from "@tanstack/react-router";
 import { addDays, addMonths, startOfDay } from "date-fns";
 import { CalendarPlus, CalendarDays, ChevronLeft, ChevronRight, Compass, Crown, ListTodo, Settings2, Sparkles } from "lucide-react";
@@ -57,7 +58,7 @@ export const Route = createFileRoute("/")({
       },
     ],
   }),
-  component: Index,
+  component: GatedIndex,
 });
 
 type ViewMode = "day" | "week" | "month";
@@ -441,3 +442,10 @@ function Index() {
   );
 }
 
+function GatedIndex() {
+  return (
+    <AccessGate>
+      <Index />
+    </AccessGate>
+  );
+}
