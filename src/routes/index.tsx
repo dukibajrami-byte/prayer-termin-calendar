@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AccessGate } from "@/components/AccessGate";
 import { createFileRoute } from "@tanstack/react-router";
 import { addDays, addMonths, startOfDay } from "date-fns";
-import { CalendarPlus, CalendarDays, ChevronLeft, ChevronRight, Compass, Crown, ListTodo, Settings2, Sparkles } from "lucide-react";
+import { CalendarPlus, CalendarDays, ChevronLeft, ChevronRight, Compass, ListTodo, Settings2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
@@ -284,11 +284,6 @@ function Index() {
 
           {/* Row 2: actions — horizontally scrollable on narrow screens */}
           <div className="-mx-3 flex items-center gap-2 overflow-x-auto px-3 pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
-            <Button variant="outline" size="sm" className="h-8 shrink-0" asChild>
-              <Link to="/premium">
-                <Crown className="mr-1 h-4 w-4" /> {t("premium.nav")}
-              </Link>
-            </Button>
             <Button
               variant="outline"
               size="sm"
