@@ -110,6 +110,7 @@ async def run() -> int:
         for path in PROTECTED:
             check(f"no-premium {path}", await landing(ctx, path), "/premium")
         check("no-premium /premium", await landing(ctx, "/premium"), "/premium")
+        check("no-premium /auth", await landing(ctx, "/auth"), "/premium")
         await ctx.close()
 
         # --- signed in, premium_grant ----------------------------------
@@ -119,8 +120,9 @@ async def run() -> int:
         await mock_premium(ctx, grant=GRANT, subscription=None)
         check("grant /", await landing(ctx, "/"), "/")
         check("grant /todo", await landing(ctx, "/todo"), "/todo")
+        check("grant /auth", await landing(ctx, "/auth"), "/")
         check("grant /premium redirects", await landing(ctx, "/premium"), "/")
-        check("grant /premium?manage=1 stays", await landing(ctx, "/premium?manage=1"), "/premium?manage=1")
+        check("grant /premium?manage=1 stays", await landing(ctx, "/premium?manage=1"), "/premium?manage=true")
         await ctx.close()
 
         # --- signed in, trialing subscription --------------------------
@@ -129,6 +131,7 @@ async def run() -> int:
         await restore_session(ctx, page)
         await mock_premium(ctx, grant=None, subscription=TRIALING)
         check("trialing /", await landing(ctx, "/"), "/")
+        check("trialing /auth", await landing(ctx, "/auth"), "/")
         check("trialing /premium redirects", await landing(ctx, "/premium"), "/")
         await ctx.close()
 
