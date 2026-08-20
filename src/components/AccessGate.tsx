@@ -1,5 +1,5 @@
 import { useEffect, useRef, type ReactNode } from "react";
-import { useNavigate, useRouterState } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useSubscription } from "@/hooks/useSubscription";
@@ -13,22 +13,26 @@ export function AccessGate({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const { isPremium, loading: subLoading } = useSubscription();
-  const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   const ready = !authLoading && !subLoading;
   const allowed = Boolean(user) && isPremium;
 
+  // Capture the originally requested path once, so a pending navigation can
+  // never overwrite the `next` target.
+  const requestedPath = useRef(
+    typeof window === "undefined" ? "/" : window.location.pathname,
+  );
   const redirected = useRef(false);
 
   useEffect(() => {
     if (!ready || allowed || redirected.current) return;
     redirected.current = true;
     if (!user) {
-      void navigate({ to: "/auth", search: { next: pathname }, replace: true });
+      void navigate({ to: "/auth", search: { next: requestedPath.current }, replace: true });
       return;
     }
     void navigate({ to: "/premium", replace: true });
-  }, [ready, allowed, user, navigate, pathname]);
+  }, [ready, allowed, user, navigate]);
 
   if (!ready || !allowed) {
     return (
