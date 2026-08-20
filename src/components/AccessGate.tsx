@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -18,8 +18,11 @@ export function AccessGate({ children }: { children: ReactNode }) {
   const ready = !authLoading && !subLoading;
   const allowed = Boolean(user) && isPremium;
 
+  const redirected = useRef(false);
+
   useEffect(() => {
-    if (!ready || allowed) return;
+    if (!ready || allowed || redirected.current) return;
+    redirected.current = true;
     if (!user) {
       void navigate({ to: "/auth", search: { next: pathname }, replace: true });
       return;

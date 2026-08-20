@@ -16,7 +16,7 @@ import { useI18n } from "@/lib/i18n";
 export const Route = createFileRoute("/premium")({
   ssr: false,
   validateSearch: (search: Record<string, unknown>): { manage?: boolean | undefined } => ({
-    manage: search["manage"] === "1" || search["manage"] === true ? true : undefined,
+    manage: search["manage"] === "1" || search["manage"] === 1 || search["manage"] === true ? true : undefined,
   }),
   head: () => ({
     meta: [
