@@ -8,6 +8,8 @@ import { holidaysOn } from "@/lib/holidays";
 import type { CalEvent, SharedCalendar } from "@/lib/store";
 
 const HOUR_HEIGHT = 52;
+const LABEL_HEIGHT = 13;
+
 
 interface Props {
   days: Date[];
