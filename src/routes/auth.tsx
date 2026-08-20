@@ -73,7 +73,10 @@ function AuthPage() {
   const [busy, setBusy] = useState(false);
   const [nativeDebugMsg, setNativeDebugMsg] = useState<string | null>(null);
   const [oauthDebug, setOauthDebug] = useState<OAuthDebugState | null>(null);
-  const target = next ?? "/premium";
+  const { isPremium, loading: subLoading } = useSubscription();
+  // Signed-in users with premium access go straight to the calendar, everyone
+  // else is sent to the plan selection.
+  const target = next ?? (isPremium ? "/" : "/premium");
   // `native=1` is only present on the first hop; after the Google round trip we
   // rely on the persisted flag (or the Capacitor bridge itself) so we never fall
   // through to the web flow.
