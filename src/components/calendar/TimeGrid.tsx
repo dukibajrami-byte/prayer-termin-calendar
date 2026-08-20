@@ -152,36 +152,55 @@ export function TimeGrid({
                   />
                 ))}
 
-                {prayersByDay[dayIndex]?.map((p: PrayerSlot) => {
-                  const top = (minutesOfDay(p.start) / 60) * HOUR_HEIGHT - offset;
-                  const height = Math.max(
-                    18,
-                    ((p.end.getTime() - p.start.getTime()) / 3_600_000) * HOUR_HEIGHT,
-                  );
-                  return (
-                    <div
-                      key={p.name}
-                      className="pointer-events-none absolute inset-x-0 z-10 border-y border-prayer/40 bg-prayer/15 px-1"
-                      style={{ top, height }}
-                      title={`${t(`prayer.${p.name}`)} · ${fmt(p.start, "HH:mm")}`}
-                    >
-                      <span className="block truncate text-[9px] font-semibold uppercase leading-none tracking-wide text-prayer-foreground sm:text-[10px]">
-                        {days.length === 1 ? (
-                          <span>{t(`prayer.${p.name}`)} · {fmt(p.start, "HH:mm")}</span>
-                        ) : (
-                          <>
-                            <span className="sm:hidden">
-                              {t(`prayer.${p.name}`).charAt(0)} {fmt(p.start, "HH:mm")}
-                            </span>
-                            <span className="hidden sm:inline">
-                              {t(`prayer.${p.name}`)} · {fmt(p.start, "HH:mm")}
-                            </span>
-                          </>
-                        )}
-                      </span>
-                    </div>
-                  );
-                })}
+                {(() => {
+                  const slots = prayersByDay[dayIndex] ?? [];
+                  let lastLabelBottom = -Infinity;
+                  return slots.map((p: PrayerSlot) => {
+                    const top = (minutesOfDay(p.start) / 60) * HOUR_HEIGHT - offset;
+                    const height = Math.max(
+                      14,
+                      ((p.end.getTime() - p.start.getTime()) / 3_600_000) * HOUR_HEIGHT,
+                    );
+                    // Keep the band at its exact time, but push the label down
+                    // when the previous label would overlap it.
+                    const labelTop = Math.max(top, lastLabelBottom);
+                    lastLabelBottom = labelTop + LABEL_HEIGHT + 1;
+                    const time = fmt(p.start, "HH:mm");
+                    const name = t(`prayer.${p.name}`);
+                    return (
+                      <div key={`${p.name}-${p.start.getTime()}`} className="pointer-events-none">
+                        <div
+                          className="absolute inset-x-0 z-10 border-y border-prayer/40 bg-prayer/15"
+                          style={{ top, height }}
+                          title={`${name} · ${time}`}
+                        />
+                        <div
+                          className="absolute inset-x-0 z-10 overflow-hidden px-1"
+                          style={{ top: labelTop, height: LABEL_HEIGHT }}
+                        >
+                          <span
+                            className="block truncate font-semibold uppercase tracking-tight text-prayer-foreground text-[9px] sm:text-[10px]"
+                            style={{ lineHeight: `${LABEL_HEIGHT}px` }}
+                          >
+                            {days.length === 1 ? (
+                              <span>{name} · {time}</span>
+                            ) : (
+                              <>
+                                <span className="sm:hidden">
+                                  {name.charAt(0)} {time}
+                                </span>
+                                <span className="hidden sm:inline">
+                                  {name} · {time}
+                                </span>
+                              </>
+                            )}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  });
+                })()}
+
 
                 {dayEvents.map((e) => {
                   const start = new Date(e.start);
