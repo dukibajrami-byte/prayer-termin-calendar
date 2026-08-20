@@ -94,9 +94,49 @@ async function handleCheckoutCompleted(session: any, env: StripeEnv) {
   await handleSubscriptionCreated(subscription, env);
 }
 
+/**
+ * Records the event id; returns false when this event was already processed.
+ * Relies on the primary key of stripe_webhook_events for atomic de-duplication.
+ */
+async function claimEvent(eventId: string, eventType: string, env: StripeEnv): Promise<boolean> {
+  const { error } = await getSupabase()
+    .from("stripe_webhook_events")
+    .insert({ event_id: eventId, event_type: eventType, environment: env });
+
+  if (!error) return true;
+  // 23505 = unique_violation -> duplicate delivery
+  if ((error as any).code === "23505") return false;
+  throw error;
+}
+
+async function releaseEvent(eventId: string) {
+  await getSupabase().from("stripe_webhook_events").delete().eq("event_id", eventId);
+}
+
 async function handleWebhook(req: Request, env: StripeEnv) {
   const event = await verifyWebhook(req, env);
 
+  if (!event.id) {
+    console.error("Verified event without id, skipping");
+    return;
+  }
+
+  const claimed = await claimEvent(event.id, event.type, env);
+  if (!claimed) {
+    console.log("Duplicate Stripe event ignored:", event.id);
+    return;
+  }
+
+  try {
+    await dispatchEvent(event, env);
+  } catch (e) {
+    // Allow Stripe to retry: drop the claim so the retry is processed.
+    await releaseEvent(event.id);
+    throw e;
+  }
+}
+
+async function dispatchEvent(event: { type: string; data: { object: any } }, env: StripeEnv) {
   switch (event.type) {
     case "customer.subscription.created":
       await handleSubscriptionCreated(event.data.object, env);
