@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { AccessGate } from "@/components/AccessGate";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { CalendarDays, Compass, Crown, LocateFixed } from "lucide-react";
 import { Toaster } from "@/components/ui/sonner";
@@ -29,7 +30,7 @@ export const Route = createFileRoute("/qibla")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: QiblaPage,
+  component: GatedQiblaPage,
 });
 
 type OrientationEventCtor = typeof DeviceOrientationEvent & {
@@ -256,5 +257,13 @@ function QiblaPage() {
         )}
       </div>
     </main>
+  );
+}
+
+function GatedQiblaPage() {
+  return (
+    <AccessGate>
+      <QiblaPage />
+    </AccessGate>
   );
 }

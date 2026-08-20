@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Check, Crown } from "lucide-react";
 import { toast } from "sonner";
@@ -15,6 +15,9 @@ import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/premium")({
   ssr: false,
+  validateSearch: (search: Record<string, unknown>): { manage?: boolean | undefined } => ({
+    manage: search["manage"] === "1" || search["manage"] === true ? true : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Premium – Muslim Appointment Calendar" },
@@ -38,9 +41,16 @@ export const Route = createFileRoute("/premium")({
 function PremiumPage() {
   const { t } = useI18n();
   const navigate = useNavigate();
+  const { manage: manageMode } = Route.useSearch();
   const { user, loading: authLoading, signOut } = useAuth();
   const { isPremium, subscription, hasGrant, hasActiveSubscription, loading } = useSubscription();
   const [checkoutPrice, setCheckoutPrice] = useState<string | null>(null);
+
+  // Users who already have premium access must not be asked to pay again.
+  useEffect(() => {
+    if (authLoading || loading) return;
+    if (user && isPremium && !manageMode) void navigate({ to: "/", replace: true });
+  }, [authLoading, loading, user, isPremium, manageMode, navigate]);
 
   const start = (priceId: string) => {
     if (!user) {

@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { AccessGate } from "@/components/AccessGate";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { CalendarDays, Check, Crown, ListTodo, Plus, Star, Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -41,7 +42,7 @@ export const Route = createFileRoute("/todo")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: TodoPage,
+  component: GatedTodoPage,
 });
 
 function TodoPage() {
@@ -306,5 +307,13 @@ function Row({
         </div>
       )}
     </div>
+  );
+}
+
+function GatedTodoPage() {
+  return (
+    <AccessGate>
+      <TodoPage />
+    </AccessGate>
   );
 }
