@@ -239,18 +239,21 @@ function Index() {
     <main className="min-h-screen bg-background">
       <Toaster />
       <div className="mx-auto max-w-6xl space-y-5 px-0 py-6 sm:px-4">
-        <header className="space-y-2 px-3 sm:px-0">
-          {/* Row 1: title · language · settings */}
-          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
-            <div className="min-w-0">
-              <h1 className="truncate font-display text-base font-semibold text-foreground sm:text-2xl">
+        <header className="space-y-3 px-4 sm:space-y-2 sm:px-0">
+          {/* Title/subtitle + language/settings */}
+          <div className="space-y-3 sm:grid sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start sm:gap-2 sm:space-y-0">
+            {/* Title + subtitle */}
+            <div className="space-y-1">
+              <h1 className="font-display text-lg font-semibold leading-tight text-foreground sm:text-2xl sm:truncate">
                 {t("app.headline")}
               </h1>
-              <p className="hidden truncate text-sm text-muted-foreground sm:block">
+              <p className="text-sm text-muted-foreground sm:truncate">
                 {t("app.subtitle")}
               </p>
             </div>
-            <div className="flex shrink-0 items-center gap-1.5">
+
+            {/* Language selector + Settings */}
+            <div className="flex items-center justify-between gap-2 sm:justify-end">
               <div className="flex items-center rounded-md border border-border p-0.5">
                 {(Object.keys(LANGS) as Lang[]).map((code) => (
                   <button
@@ -269,42 +272,80 @@ function Index() {
                   </button>
                 ))}
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-8 px-2 sm:px-3"
-                onClick={() => setSettingsOpen(true)}
-              >
-                <Settings2 className="h-4 w-4 sm:mr-1" />
-                <span className="hidden sm:inline">{t("nav.settings")}</span>
-                <span className="sr-only sm:hidden">{t("nav.settings")}</span>
-              </Button>
+              <div className="flex shrink-0 items-center gap-1.5">
+                <div className="sm:hidden">
+                  <InstallButton />
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 px-2 sm:px-3"
+                  onClick={() => setSettingsOpen(true)}
+                >
+                  <Settings2 className="h-4 w-4 sm:mr-1" />
+                  <span className="hidden sm:inline">{t("nav.settings")}</span>
+                  <span className="sr-only sm:hidden">{t("nav.settings")}</span>
+                </Button>
+              </div>
             </div>
           </div>
 
-          {/* Row 2: actions — horizontally scrollable on narrow screens */}
-          <div className="-mx-3 flex items-center gap-2 overflow-x-auto px-3 pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
+          {/* Mobile action grid: 2 rows × 2 columns */}
+          <div className="grid grid-cols-2 gap-2 sm:hidden">
             <Button
               variant="outline"
               size="sm"
-              className="h-8 shrink-0"
+              className="h-10 w-full"
+              onClick={() => setCalendarOpen(true)}
+            >
+              <CalendarDays className="mr-1 h-4 w-4 shrink-0" /> {t("calendars.manage")}
+            </Button>
+            <Button variant="outline" size="sm" className="h-10 w-full" asChild>
+              <Link to="/todo">
+                <ListTodo className="mr-1 h-4 w-4 shrink-0" /> {t("todo.nav")}
+              </Link>
+            </Button>
+            <Button variant="outline" size="sm" className="h-10 w-full" asChild>
+              <Link to="/qibla">
+                <Compass className="mr-1 h-4 w-4 shrink-0" /> {t("qibla.nav")}
+              </Link>
+            </Button>
+            <Button
+              size="sm"
+              className="h-10 w-full"
+              onClick={() => {
+                const start = new Date();
+                start.setMinutes(0, 0, 0);
+                openNew(start);
+              }}
+            >
+              <CalendarPlus className="mr-1 h-4 w-4 shrink-0" /> {t("nav.newEvent")}
+            </Button>
+          </div>
+
+          {/* Desktop action row */}
+          <div className="hidden sm:flex sm:flex-wrap sm:items-center sm:gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8"
               onClick={() => setCalendarOpen(true)}
             >
               <CalendarDays className="mr-1 h-4 w-4" /> {t("calendars.manage")}
             </Button>
-            <Button variant="outline" size="sm" className="h-8 shrink-0" asChild>
+            <Button variant="outline" size="sm" className="h-8" asChild>
               <Link to="/todo">
                 <ListTodo className="mr-1 h-4 w-4" /> {t("todo.nav")}
               </Link>
             </Button>
-            <Button variant="outline" size="sm" className="h-8 shrink-0" asChild>
+            <Button variant="outline" size="sm" className="h-8" asChild>
               <Link to="/qibla">
                 <Compass className="mr-1 h-4 w-4" /> {t("qibla.nav")}
               </Link>
             </Button>
             <Button
               size="sm"
-              className="h-8 shrink-0"
+              className="h-8"
               onClick={() => {
                 const start = new Date();
                 start.setMinutes(0, 0, 0);
@@ -313,11 +354,8 @@ function Index() {
             >
               <CalendarPlus className="mr-1 h-4 w-4" /> {t("nav.newEvent")}
             </Button>
-            <div className="shrink-0">
-              <InstallButton />
-            </div>
+            <InstallButton />
           </div>
-
         </header>
 
         {!hydrated ? (
