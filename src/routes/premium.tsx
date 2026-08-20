@@ -181,6 +181,7 @@ function PlanCard({
   price,
   per,
   badge,
+  note,
   cta,
   onSelect,
   highlight,
@@ -189,6 +190,7 @@ function PlanCard({
   price: string;
   per: string;
   badge?: string;
+  note?: string;
   cta: string;
   onSelect: () => void;
   highlight?: boolean;
@@ -211,6 +213,7 @@ function PlanCard({
       <p className="font-display text-3xl">
         {price} <span className="text-sm text-muted-foreground">{per}</span>
       </p>
+      {note && <p className="text-sm font-medium text-primary">{note}</p>}
       <Button className="w-full" onClick={onSelect}>
         {cta}
       </Button>
