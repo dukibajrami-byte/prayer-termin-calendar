@@ -32,10 +32,23 @@ export function TimeGrid({
   const scrollRef = useRef<HTMLDivElement>(null);
   const now = new Date();
 
+  // Prayer times must be placed in the column of the day they actually occur on.
+  // adhan returns e.g. Isha for 26 May as 27 May 00:48 at high latitudes, so we
+  // also look at the previous/next day and filter by the real local date.
   const prayersByDay = useMemo(
-    () => days.map((d) => getPrayerSlots(d, config)),
+    () =>
+      days.map((d) =>
+        [
+          ...getPrayerSlots(new Date(d.getTime() - 86_400_000), config),
+          ...getPrayerSlots(d, config),
+          ...getPrayerSlots(new Date(d.getTime() + 86_400_000), config),
+        ]
+          .filter((p) => sameDay(p.start, d))
+          .sort((a, b) => a.start.getTime() - b.start.getTime()),
+      ),
     [days, config],
   );
+
 
   // Static grid: only render the hours that actually contain something,
   // so day/week views fit without an inner scroll area.
