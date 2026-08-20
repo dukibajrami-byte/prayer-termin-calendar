@@ -19,6 +19,8 @@ import json
 import os
 import sys
 
+from urllib.parse import quote
+
 from playwright.async_api import async_playwright
 
 BASE = os.environ.get("E2E_BASE_URL", "http://localhost:8080")
@@ -67,7 +69,9 @@ async def restore_session(context, page):
     return True
 
 
-async def landing(page, path: str) -> str:
+async def landing(context, path: str) -> str:
+    """Open `path` in a fresh tab and return the path the app settles on."""
+    page = await context.new_page()
     await page.goto(BASE + path, wait_until="domcontentloaded")
     try:
         await page.wait_for_load_state("networkidle", timeout=8000)
@@ -75,6 +79,7 @@ async def landing(page, path: str) -> str:
         pass
     await page.wait_for_timeout(1200)
     url = page.url[len(BASE) :]
+    await page.close()
     return url or "/"
 
 
@@ -86,9 +91,9 @@ async def run() -> int:
         ctx = await browser.new_context(viewport={"width": 1280, "height": 1800})
         page = await ctx.new_page()
         for path in PROTECTED:
-            check(f"signed-out {path}", await landing(page, path), f"/auth?next={path}")
-        check("signed-out /auth", await landing(page, "/auth"), "/auth")
-        check("signed-out /premium", await landing(page, "/premium"), "/premium")
+            check(f"signed-out {path}", await landing(ctx, path), f"/auth?next={quote(path, safe='')}")
+        check("signed-out /auth", await landing(ctx, "/auth"), "/auth")
+        check("signed-out /premium", await landing(ctx, "/premium"), "/premium")
         await ctx.close()
 
         status = os.environ.get("LOVABLE_BROWSER_AUTH_STATUS", "")
@@ -103,8 +108,8 @@ async def run() -> int:
         await restore_session(ctx, page)
         await mock_premium(ctx, grant=None, subscription=None)
         for path in PROTECTED:
-            check(f"no-premium {path}", await landing(page, path), "/premium")
-        check("no-premium /premium", await landing(page, "/premium"), "/premium")
+            check(f"no-premium {path}", await landing(ctx, path), "/premium")
+        check("no-premium /premium", await landing(ctx, "/premium"), "/premium")
         await ctx.close()
 
         # --- signed in, premium_grant ----------------------------------
@@ -112,10 +117,10 @@ async def run() -> int:
         page = await ctx.new_page()
         await restore_session(ctx, page)
         await mock_premium(ctx, grant=GRANT, subscription=None)
-        check("grant /", await landing(page, "/"), "/")
-        check("grant /todo", await landing(page, "/todo"), "/todo")
-        check("grant /premium redirects", await landing(page, "/premium"), "/")
-        check("grant /premium?manage=1 stays", await landing(page, "/premium?manage=1"), "/premium?manage=1")
+        check("grant /", await landing(ctx, "/"), "/")
+        check("grant /todo", await landing(ctx, "/todo"), "/todo")
+        check("grant /premium redirects", await landing(ctx, "/premium"), "/")
+        check("grant /premium?manage=1 stays", await landing(ctx, "/premium?manage=1"), "/premium?manage=1")
         await ctx.close()
 
         # --- signed in, trialing subscription --------------------------
@@ -123,8 +128,8 @@ async def run() -> int:
         page = await ctx.new_page()
         await restore_session(ctx, page)
         await mock_premium(ctx, grant=None, subscription=TRIALING)
-        check("trialing /", await landing(page, "/"), "/")
-        check("trialing /premium redirects", await landing(page, "/premium"), "/")
+        check("trialing /", await landing(ctx, "/"), "/")
+        check("trialing /premium redirects", await landing(ctx, "/premium"), "/")
         await ctx.close()
 
         await browser.close()
