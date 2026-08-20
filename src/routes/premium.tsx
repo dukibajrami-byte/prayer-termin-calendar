@@ -15,6 +15,9 @@ import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/premium")({
   ssr: false,
+  validateSearch: (search: Record<string, unknown>): { manage?: boolean | undefined } => ({
+    manage: search["manage"] === "1" || search["manage"] === true ? true : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Premium – Muslim Appointment Calendar" },
@@ -38,6 +41,7 @@ export const Route = createFileRoute("/premium")({
 function PremiumPage() {
   const { t } = useI18n();
   const navigate = useNavigate();
+  const { manage: manageMode } = Route.useSearch();
   const { user, loading: authLoading, signOut } = useAuth();
   const { isPremium, subscription, hasGrant, hasActiveSubscription, loading } = useSubscription();
   const [checkoutPrice, setCheckoutPrice] = useState<string | null>(null);
