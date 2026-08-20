@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/hooks/useAuth";
+import { useSubscription } from "@/hooks/useSubscription";
 import {
   isNativeApp,
   getPendingNativeHandoff,
@@ -104,8 +105,11 @@ function AuthPage() {
       return;
     }
     if (!user) return;
+    // Wait until the subscription status is known so we never redirect to the
+    // wrong destination.
+    if (!next && subLoading) return;
     void navigate({ to: target });
-  }, [loading, user, session, nativeFlow, navigate, target]);
+  }, [loading, user, session, nativeFlow, navigate, target, next, subLoading]);
 
   const submit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();

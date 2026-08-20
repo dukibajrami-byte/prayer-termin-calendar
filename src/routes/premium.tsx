@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Check, Crown } from "lucide-react";
 import { toast } from "sonner";
@@ -41,6 +41,12 @@ function PremiumPage() {
   const { user, loading: authLoading, signOut } = useAuth();
   const { isPremium, subscription, hasGrant, hasActiveSubscription, loading } = useSubscription();
   const [checkoutPrice, setCheckoutPrice] = useState<string | null>(null);
+
+  // Users who already have premium access must not be asked to pay again.
+  useEffect(() => {
+    if (authLoading || loading) return;
+    if (user && isPremium && !manageMode) void navigate({ to: "/", replace: true });
+  }, [authLoading, loading, user, isPremium, manageMode, navigate]);
 
   const start = (priceId: string) => {
     if (!user) {
