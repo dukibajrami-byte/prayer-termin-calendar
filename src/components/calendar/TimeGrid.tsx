@@ -8,6 +8,8 @@ import { holidaysOn } from "@/lib/holidays";
 import type { CalEvent, SharedCalendar } from "@/lib/store";
 
 const HOUR_HEIGHT = 52;
+const LABEL_HEIGHT = 13;
+
 
 interface Props {
   days: Date[];
@@ -32,10 +34,23 @@ export function TimeGrid({
   const scrollRef = useRef<HTMLDivElement>(null);
   const now = new Date();
 
+  // Prayer times must be placed in the column of the day they actually occur on.
+  // adhan returns e.g. Isha for 26 May as 27 May 00:48 at high latitudes, so we
+  // also look at the previous/next day and filter by the real local date.
   const prayersByDay = useMemo(
-    () => days.map((d) => getPrayerSlots(d, config)),
+    () =>
+      days.map((d) =>
+        [
+          ...getPrayerSlots(new Date(d.getTime() - 86_400_000), config),
+          ...getPrayerSlots(d, config),
+          ...getPrayerSlots(new Date(d.getTime() + 86_400_000), config),
+        ]
+          .filter((p) => sameDay(p.start, d))
+          .sort((a, b) => a.start.getTime() - b.start.getTime()),
+      ),
     [days, config],
   );
+
 
   // Static grid: only render the hours that actually contain something,
   // so day/week views fit without an inner scroll area.
@@ -139,36 +154,55 @@ export function TimeGrid({
                   />
                 ))}
 
-                {prayersByDay[dayIndex]?.map((p: PrayerSlot) => {
-                  const top = (minutesOfDay(p.start) / 60) * HOUR_HEIGHT - offset;
-                  const height = Math.max(
-                    18,
-                    ((p.end.getTime() - p.start.getTime()) / 3_600_000) * HOUR_HEIGHT,
-                  );
-                  return (
-                    <div
-                      key={p.name}
-                      className="pointer-events-none absolute inset-x-0 z-10 border-y border-prayer/40 bg-prayer/15 px-1"
-                      style={{ top, height }}
-                      title={`${t(`prayer.${p.name}`)} · ${fmt(p.start, "HH:mm")}`}
-                    >
-                      <span className="block truncate text-[9px] font-semibold uppercase leading-none tracking-wide text-prayer-foreground sm:text-[10px]">
-                        {days.length === 1 ? (
-                          <span>{t(`prayer.${p.name}`)} · {fmt(p.start, "HH:mm")}</span>
-                        ) : (
-                          <>
-                            <span className="sm:hidden">
-                              {t(`prayer.${p.name}`).charAt(0)} {fmt(p.start, "HH:mm")}
-                            </span>
-                            <span className="hidden sm:inline">
-                              {t(`prayer.${p.name}`)} · {fmt(p.start, "HH:mm")}
-                            </span>
-                          </>
-                        )}
-                      </span>
-                    </div>
-                  );
-                })}
+                {(() => {
+                  const slots = prayersByDay[dayIndex] ?? [];
+                  let lastLabelBottom = -Infinity;
+                  return slots.map((p: PrayerSlot) => {
+                    const top = (minutesOfDay(p.start) / 60) * HOUR_HEIGHT - offset;
+                    const height = Math.max(
+                      14,
+                      ((p.end.getTime() - p.start.getTime()) / 3_600_000) * HOUR_HEIGHT,
+                    );
+                    // Keep the band at its exact time, but push the label down
+                    // when the previous label would overlap it.
+                    const labelTop = Math.max(top, lastLabelBottom);
+                    lastLabelBottom = labelTop + LABEL_HEIGHT + 1;
+                    const time = fmt(p.start, "HH:mm");
+                    const name = t(`prayer.${p.name}`);
+                    return (
+                      <div key={`${p.name}-${p.start.getTime()}`} className="pointer-events-none">
+                        <div
+                          className="absolute inset-x-0 z-10 border-y border-prayer/40 bg-prayer/15"
+                          style={{ top, height }}
+                          title={`${name} · ${time}`}
+                        />
+                        <div
+                          className="absolute inset-x-0 z-10 overflow-hidden px-1"
+                          style={{ top: labelTop, height: LABEL_HEIGHT }}
+                        >
+                          <span
+                            className="block truncate font-semibold uppercase tracking-tight text-prayer-foreground text-[9px] sm:text-[10px]"
+                            style={{ lineHeight: `${LABEL_HEIGHT}px` }}
+                          >
+                            {days.length === 1 ? (
+                              <span>{name} · {time}</span>
+                            ) : (
+                              <>
+                                <span className="sm:hidden">
+                                  {name.charAt(0)} {time}
+                                </span>
+                                <span className="hidden sm:inline">
+                                  {name} · {time}
+                                </span>
+                              </>
+                            )}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  });
+                })()}
+
 
                 {dayEvents.map((e) => {
                   const start = new Date(e.start);

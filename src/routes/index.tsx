@@ -239,17 +239,18 @@ function Index() {
     <main className="min-h-screen bg-background">
       <Toaster />
       <div className="mx-auto max-w-6xl space-y-5 px-0 py-6 sm:px-4">
-        <header className="flex flex-wrap items-center justify-between gap-3 px-3 sm:px-0">
-          <div className="min-w-0">
-            <h1 className="font-display text-xl font-semibold text-foreground sm:text-2xl">
-              {t("app.headline")}
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              {t("app.subtitle")}
-            </p>
-          </div>
-          <div className="flex w-full min-w-0 flex-col items-stretch gap-2 sm:w-auto sm:flex-row sm:items-center">
-            <div className="flex flex-wrap items-center gap-2">
+        <header className="space-y-2 px-3 sm:px-0">
+          {/* Row 1: title · language · settings */}
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
+            <div className="min-w-0">
+              <h1 className="truncate font-display text-base font-semibold text-foreground sm:text-2xl">
+                {t("app.headline")}
+              </h1>
+              <p className="hidden truncate text-sm text-muted-foreground sm:block">
+                {t("app.subtitle")}
+              </p>
+            </div>
+            <div className="flex shrink-0 items-center gap-1.5">
               <div className="flex items-center rounded-md border border-border p-0.5">
                 {(Object.keys(LANGS) as Lang[]).map((code) => (
                   <button
@@ -258,7 +259,7 @@ function Index() {
                     onClick={() => setLang(code)}
                     aria-pressed={lang === code}
                     className={
-                      "rounded px-2 py-1 text-xs font-medium uppercase transition-colors " +
+                      "rounded px-1.5 py-1 text-[10px] font-medium uppercase transition-colors sm:px-2 sm:text-xs " +
                       (lang === code
                         ? "bg-primary text-primary-foreground"
                         : "text-muted-foreground hover:bg-secondary")
@@ -268,42 +269,60 @@ function Index() {
                   </button>
                 ))}
               </div>
-              <Button variant="outline" size="sm" onClick={() => setSettingsOpen(true)}>
-                <Settings2 className="mr-1 h-4 w-4" /> {t("nav.settings")}
-              </Button>
-              <InstallButton />
-              <Button variant="outline" size="sm" asChild>
-                <Link to="/premium">
-                  <Crown className="mr-1 h-4 w-4" /> {t("premium.nav")}
-                </Link>
-              </Button>
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <Button variant="outline" size="sm" onClick={() => setCalendarOpen(true)}>
-                <CalendarDays className="mr-1 h-4 w-4" /> {t("calendars.manage")}
-              </Button>
-              <Button variant="outline" size="sm" asChild>
-                <Link to="/todo">
-                  <ListTodo className="mr-1 h-4 w-4" /> {t("todo.nav")}
-                </Link>
-              </Button>
-              <Button variant="outline" size="sm" asChild>
-                <Link to="/qibla">
-                  <Compass className="mr-1 h-4 w-4" /> {t("qibla.nav")}
-                </Link>
-              </Button>
               <Button
+                variant="outline"
                 size="sm"
-                onClick={() => {
-                  const start = new Date();
-                  start.setMinutes(0, 0, 0);
-                  openNew(start);
-                }}
+                className="h-8 px-2 sm:px-3"
+                onClick={() => setSettingsOpen(true)}
               >
-                <CalendarPlus className="mr-1 h-4 w-4" /> {t("nav.newEvent")}
+                <Settings2 className="h-4 w-4 sm:mr-1" />
+                <span className="hidden sm:inline">{t("nav.settings")}</span>
+                <span className="sr-only sm:hidden">{t("nav.settings")}</span>
               </Button>
             </div>
           </div>
+
+          {/* Row 2: actions — horizontally scrollable on narrow screens */}
+          <div className="-mx-3 flex items-center gap-2 overflow-x-auto px-3 pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
+            <Button variant="outline" size="sm" className="h-8 shrink-0" asChild>
+              <Link to="/premium">
+                <Crown className="mr-1 h-4 w-4" /> {t("premium.nav")}
+              </Link>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 shrink-0"
+              onClick={() => setCalendarOpen(true)}
+            >
+              <CalendarDays className="mr-1 h-4 w-4" /> {t("calendars.manage")}
+            </Button>
+            <Button variant="outline" size="sm" className="h-8 shrink-0" asChild>
+              <Link to="/todo">
+                <ListTodo className="mr-1 h-4 w-4" /> {t("todo.nav")}
+              </Link>
+            </Button>
+            <Button variant="outline" size="sm" className="h-8 shrink-0" asChild>
+              <Link to="/qibla">
+                <Compass className="mr-1 h-4 w-4" /> {t("qibla.nav")}
+              </Link>
+            </Button>
+            <Button
+              size="sm"
+              className="h-8 shrink-0"
+              onClick={() => {
+                const start = new Date();
+                start.setMinutes(0, 0, 0);
+                openNew(start);
+              }}
+            >
+              <CalendarPlus className="mr-1 h-4 w-4" /> {t("nav.newEvent")}
+            </Button>
+            <div className="shrink-0">
+              <InstallButton />
+            </div>
+          </div>
+
         </header>
 
         {!hydrated ? (
