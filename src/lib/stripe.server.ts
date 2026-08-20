@@ -74,31 +74,69 @@ export function getStripeErrorMessage(error: unknown): string {
   return 'Stripe request failed';
 }
 
+export class WebhookVerificationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'WebhookVerificationError';
+  }
+}
+
+const MAX_WEBHOOK_BODY_BYTES = 1_000_000;
+const TIMESTAMP_TOLERANCE_SECONDS = 300;
+
+function timingSafeEqualHex(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+
 export async function verifyWebhook(
   req: Request,
   env: StripeEnv,
-): Promise<{ type: string; data: { object: any } }> {
+): Promise<{ id?: string; type: string; data: { object: any } }> {
+  if (req.method !== 'POST') throw new WebhookVerificationError('Invalid method');
+
   const signature = req.headers.get('stripe-signature');
+  if (!signature) throw new WebhookVerificationError('Missing stripe-signature header');
+
   const body = await req.text();
+  if (!body) throw new WebhookVerificationError('Missing body');
+  if (body.length > MAX_WEBHOOK_BODY_BYTES) throw new WebhookVerificationError('Body too large');
+
   const secret =
     env === 'sandbox'
       ? getEnv('PAYMENTS_SANDBOX_WEBHOOK_SECRET')
       : getEnv('PAYMENTS_LIVE_WEBHOOK_SECRET');
 
-  if (!signature || !body) throw new Error('Missing signature or body');
-
   let timestamp: string | undefined;
   const v1Signatures: string[] = [];
   for (const part of signature.split(',')) {
-    const [key, value] = part.split('=', 2);
+    const idx = part.indexOf('=');
+    if (idx === -1) continue;
+    const key = part.slice(0, idx).trim();
+    const value = part.slice(idx + 1).trim();
+    if (!value) continue;
     if (key === 't') timestamp = value;
-    if (key === 'v1' && value) v1Signatures.push(value);
+    // Multiple v1 values can be present during secret rotation.
+    if (key === 'v1' && /^[0-9a-f]+$/i.test(value)) v1Signatures.push(value.toLowerCase());
   }
 
-  if (!timestamp || v1Signatures.length === 0) throw new Error('Invalid signature format');
+  if (!timestamp || !/^\d+$/.test(timestamp)) {
+    throw new WebhookVerificationError('Invalid signature format: missing timestamp');
+  }
+  if (v1Signatures.length === 0) {
+    throw new WebhookVerificationError('Invalid signature format: no v1 signature');
+  }
 
-  const age = Math.abs(Date.now() / 1000 - Number(timestamp));
-  if (age > 300) throw new Error('Webhook timestamp too old');
+  const nowSeconds = Date.now() / 1000;
+  const age = nowSeconds - Number(timestamp);
+  if (age > TIMESTAMP_TOLERANCE_SECONDS) {
+    throw new WebhookVerificationError('Webhook timestamp too old');
+  }
+  if (age < -TIMESTAMP_TOLERANCE_SECONDS) {
+    throw new WebhookVerificationError('Webhook timestamp in the future');
+  }
 
   const key = await crypto.subtle.importKey(
     'raw',
@@ -114,7 +152,19 @@ export async function verifyWebhook(
   );
   const expected = Buffer.from(new Uint8Array(signed)).toString('hex');
 
-  if (!v1Signatures.includes(expected)) throw new Error('Invalid webhook signature');
+  const matches = v1Signatures.some((candidate) => timingSafeEqualHex(candidate, expected));
+  if (!matches) throw new WebhookVerificationError('Invalid webhook signature');
 
-  return JSON.parse(body);
+  let event: { id?: string; type?: unknown; data?: { object?: unknown } };
+  try {
+    event = JSON.parse(body);
+  } catch {
+    throw new WebhookVerificationError('Malformed JSON payload');
+  }
+
+  if (typeof event?.type !== 'string' || typeof event?.data?.object !== 'object' || !event.data.object) {
+    throw new WebhookVerificationError('Malformed event payload');
+  }
+
+  return event as { id?: string; type: string; data: { object: any } };
 }

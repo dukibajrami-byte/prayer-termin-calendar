@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
-import { type StripeEnv, verifyWebhook } from "@/lib/stripe.server";
+import { type StripeEnv, verifyWebhook, WebhookVerificationError } from "@/lib/stripe.server";
 
 let _supabase: ReturnType<typeof createClient> | null = null;
 function getSupabase(): any {
@@ -130,6 +130,11 @@ export const Route = createFileRoute("/api/public/payments/webhook")({
           await handleWebhook(request, rawEnv);
           return Response.json({ received: true });
         } catch (e) {
+          if (e instanceof WebhookVerificationError) {
+            // Unverified request: never process the payload.
+            console.error("Webhook signature verification failed:", e.message);
+            return new Response("Invalid signature", { status: 401 });
+          }
           console.error("Webhook error:", e);
           return new Response("Webhook error", { status: 400 });
         }
