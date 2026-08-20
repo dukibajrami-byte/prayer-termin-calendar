@@ -132,23 +132,30 @@ function PremiumPage() {
             </Button>
           </div>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2">
-            <PlanCard
-              name={t("premium.monthly")}
-              price="3,99 €"
-              per={t("premium.perMonth")}
-              onSelect={() => start(PRICE_MONTHLY)}
-              cta={t("premium.choose")}
-            />
-            <PlanCard
-              name={t("premium.yearly")}
-              price="29,99 €"
-              per={t("premium.perYear")}
-              badge={t("premium.save")}
-              onSelect={() => start(PRICE_YEARLY)}
-              cta={t("premium.choose")}
-              highlight
-            />
+          <div className="space-y-3">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <PlanCard
+                name={t("premium.monthly")}
+                price="1,00 €"
+                per={t("premium.perMonth")}
+                note={t("premium.trialMonthly")}
+                onSelect={() => start(PRICE_MONTHLY)}
+                cta={t("premium.choose")}
+              />
+              <PlanCard
+                name={t("premium.yearly")}
+                price="10,00 €"
+                per={t("premium.perYear")}
+                note={t("premium.trialYearly")}
+                badge={t("premium.save")}
+                onSelect={() => start(PRICE_YEARLY)}
+                cta={t("premium.choose")}
+                highlight
+              />
+            </div>
+            <p className="text-center text-xs text-muted-foreground">
+              {t("premium.cancelAnytime")}
+            </p>
           </div>
         )}
 
