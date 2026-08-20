@@ -254,7 +254,7 @@ function Index() {
 
             {/* Language selector + Settings */}
             <div className="flex items-center justify-between gap-2 sm:justify-end">
-              <div className="flex items-center rounded-md border border-border p-0.5">
+              <div className="flex min-w-0 items-center rounded-md border border-border p-0.5">
                 {(Object.keys(LANGS) as Lang[]).map((code) => (
                   <button
                     key={code}
@@ -262,7 +262,7 @@ function Index() {
                     onClick={() => setLang(code)}
                     aria-pressed={lang === code}
                     className={
-                      "rounded px-1.5 py-1 text-[10px] font-medium uppercase transition-colors sm:px-2 sm:text-xs " +
+                      "rounded px-1 py-1 text-[10px] font-medium uppercase transition-colors sm:px-2 sm:text-xs " +
                       (lang === code
                         ? "bg-primary text-primary-foreground"
                         : "text-muted-foreground hover:bg-secondary")
@@ -279,12 +279,11 @@ function Index() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-8 px-2 sm:px-3"
+                  className="h-9 whitespace-nowrap px-2 text-xs shadow-sm sm:px-3"
                   onClick={() => setSettingsOpen(true)}
                 >
-                  <Settings2 className="h-4 w-4 sm:mr-1" />
-                  <span className="hidden sm:inline">{t("nav.settings")}</span>
-                  <span className="sr-only sm:hidden">{t("nav.settings")}</span>
+                  <Settings2 className="mr-1 h-4 w-4" />
+                  {t("nav.settings")}
                 </Button>
               </div>
             </div>
