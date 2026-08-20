@@ -72,8 +72,16 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
         return_url: data.returnUrl,
         customer: customerId,
         managed_payments: { enabled: true },
+        // Zahlungsmittel ist auch während der Testphase Pflicht
+        payment_method_collection: "always",
         metadata: { userId, managed_payments: "true" },
-        subscription_data: { metadata: { userId } },
+        subscription_data: {
+          metadata: { userId },
+          trial_period_days: 7,
+          trial_settings: {
+            end_behavior: { missing_payment_method: "cancel" },
+          },
+        },
       } as any);
 
       return { clientSecret: session.client_secret ?? "" };
