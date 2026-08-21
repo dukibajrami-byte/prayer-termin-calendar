@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { setDateLocale } from "./dates";
+import * as extra from "./i18n-extra";
 
 export const LANGS = {
   de: "Deutsch",
@@ -7,9 +8,25 @@ export const LANGS = {
   ar: "العربية",
   sq: "Shqip",
   tr: "Türkçe",
+  fr: "Français",
+  ur: "اردو",
+  id: "Bahasa Indonesia",
+  ms: "Bahasa Melayu",
+  bn: "বাংলা",
+  fa: "فارسی",
+  ru: "Русский",
+  es: "Español",
+  nl: "Nederlands",
+  bs: "Bosanski",
 } as const;
 
+export const RTL_LANGS = ["ar", "ur", "fa"] as const;
+
 export type Lang = keyof typeof LANGS;
+
+export function dirFor(lang: string): "ltr" | "rtl" {
+  return (RTL_LANGS as readonly string[]).includes(lang) ? "rtl" : "ltr";
+}
 
 type Dict = Record<string, string>;
 
