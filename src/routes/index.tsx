@@ -65,7 +65,7 @@ export const Route = createFileRoute("/")({
 type ViewMode = "day" | "week" | "month";
 
 function Index() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const [settings, setSettings] = useLocalState<Settings>("mtk.settings", DEFAULT_SETTINGS);
   const { isPremium } = useSubscription();
   const [view, setView] = useState<ViewMode>("week");

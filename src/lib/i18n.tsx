@@ -1014,7 +1014,7 @@ const DICTS = Object.fromEntries(
       "lang.select": LANG_BUTTON[code].select,
     },
   ]),
-) as Record<Lang, Dict>;
+) as unknown as Record<Lang, Dict>;
 
 export type Translate = (key: string, vars?: Record<string, string | number>) => string;
 
