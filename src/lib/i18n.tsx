@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { setDateLocale } from "./dates";
+import * as extra from "./i18n-extra";
 
 export const LANGS = {
   de: "Deutsch",
@@ -7,9 +8,25 @@ export const LANGS = {
   ar: "العربية",
   sq: "Shqip",
   tr: "Türkçe",
+  fr: "Français",
+  ur: "اردو",
+  id: "Bahasa Indonesia",
+  ms: "Bahasa Melayu",
+  bn: "বাংলা",
+  fa: "فارسی",
+  ru: "Русский",
+  es: "Español",
+  nl: "Nederlands",
+  bs: "Bosanski",
 } as const;
 
+export const RTL_LANGS = ["ar", "ur", "fa"] as const;
+
 export type Lang = keyof typeof LANGS;
+
+export function dirFor(lang: string): "ltr" | "rtl" {
+  return (RTL_LANGS as readonly string[]).includes(lang) ? "rtl" : "ltr";
+}
 
 type Dict = Record<string, string>;
 
@@ -952,7 +969,52 @@ const tr: Dict = {
   "todo.remindPremium": "Görev hatırlatmaları Premium özelliğidir.",
 };
 
-const DICTS: Record<Lang, Dict> = { de, en, ar, sq, tr };
+const LANG_BUTTON: Record<Lang, { button: string; select: string }> = {
+  de: { button: "Sprachen", select: "Sprache auswählen" },
+  en: { button: "Languages", select: "Select language" },
+  ar: { button: "اللغات", select: "اختر اللغة" },
+  sq: { button: "Gjuhët", select: "Zgjidh gjuhën" },
+  tr: { button: "Diller", select: "Dil seçin" },
+  fr: { button: "Langues", select: "Choisir la langue" },
+  ur: { button: "زبانیں", select: "زبان منتخب کریں" },
+  id: { button: "Bahasa", select: "Pilih bahasa" },
+  ms: { button: "Bahasa", select: "Pilih bahasa" },
+  bn: { button: "ভাষা", select: "ভাষা নির্বাচন করুন" },
+  fa: { button: "زبان‌ها", select: "انتخاب زبان" },
+  ru: { button: "Языки", select: "Выберите язык" },
+  es: { button: "Idiomas", select: "Seleccionar idioma" },
+  nl: { button: "Talen", select: "Taal kiezen" },
+  bs: { button: "Jezici", select: "Odaberi jezik" },
+};
+
+const BASE: Record<Lang, Dict> = {
+  de,
+  en,
+  ar,
+  sq,
+  tr,
+  fr: extra.fr,
+  ur: extra.ur,
+  id: extra.id,
+  ms: extra.ms,
+  bn: extra.bn,
+  fa: extra.fa,
+  ru: extra.ru,
+  es: extra.es,
+  nl: extra.nl,
+  bs: extra.bs,
+};
+
+const DICTS = Object.fromEntries(
+  (Object.keys(BASE) as Lang[]).map((code) => [
+    code,
+    {
+      ...BASE[code],
+      "lang.button": LANG_BUTTON[code].button,
+      "lang.select": LANG_BUTTON[code].select,
+    },
+  ]),
+) as unknown as Record<Lang, Dict>;
 
 export type Translate = (key: string, vars?: Record<string, string | number>) => string;
 
@@ -980,7 +1042,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     setDateLocale(lang);
-    const dir = lang === "ar" ? "rtl" : "ltr";
+    const dir = dirFor(lang);
     document.documentElement.lang = lang;
     document.documentElement.dir = dir;
   }, [lang]);
@@ -1004,7 +1066,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   );
 
   const value = useMemo<Ctx>(
-    () => ({ lang, setLang, t, dir: lang === "ar" ? "rtl" : "ltr" }),
+    () => ({ lang, setLang, t, dir: dirFor(lang) }),
     [lang, setLang, t],
   );
 
