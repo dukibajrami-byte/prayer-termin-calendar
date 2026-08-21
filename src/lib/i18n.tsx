@@ -1042,7 +1042,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     setDateLocale(lang);
-    const dir = lang === "ar" ? "rtl" : "ltr";
+    const dir = dirFor(lang);
     document.documentElement.lang = lang;
     document.documentElement.dir = dir;
   }, [lang]);
@@ -1066,7 +1066,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   );
 
   const value = useMemo<Ctx>(
-    () => ({ lang, setLang, t, dir: lang === "ar" ? "rtl" : "ltr" }),
+    () => ({ lang, setLang, t, dir: dirFor(lang) }),
     [lang, setLang, t],
   );
 

@@ -1,8 +1,24 @@
-import { de, enUS, arSA, sq, tr } from "date-fns/locale";
+import { de, enUS, arSA, sq, tr, fr, id, ms, bn, faIR, ru, es, nl, bs } from "date-fns/locale";
 import type { Locale } from "date-fns";
 import { addDays, format, startOfWeek } from "date-fns";
 
-const LOCALES: Record<string, Locale> = { de, en: enUS, ar: arSA, sq, tr };
+const LOCALES: Record<string, Locale> = {
+  de,
+  en: enUS,
+  ar: arSA,
+  sq,
+  tr,
+  fr,
+  id,
+  ms,
+  bn,
+  fa: faIR,
+  ru,
+  es,
+  nl,
+  bs,
+  // Urdu has no date-fns locale yet – falls back to English formatting.
+};
 
 let current: Locale = de;
 
