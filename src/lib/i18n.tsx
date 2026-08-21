@@ -969,7 +969,52 @@ const tr: Dict = {
   "todo.remindPremium": "Görev hatırlatmaları Premium özelliğidir.",
 };
 
-const DICTS: Record<Lang, Dict> = { de, en, ar, sq, tr };
+const LANG_BUTTON: Record<Lang, { button: string; select: string }> = {
+  de: { button: "Sprachen", select: "Sprache auswählen" },
+  en: { button: "Languages", select: "Select language" },
+  ar: { button: "اللغات", select: "اختر اللغة" },
+  sq: { button: "Gjuhët", select: "Zgjidh gjuhën" },
+  tr: { button: "Diller", select: "Dil seçin" },
+  fr: { button: "Langues", select: "Choisir la langue" },
+  ur: { button: "زبانیں", select: "زبان منتخب کریں" },
+  id: { button: "Bahasa", select: "Pilih bahasa" },
+  ms: { button: "Bahasa", select: "Pilih bahasa" },
+  bn: { button: "ভাষা", select: "ভাষা নির্বাচন করুন" },
+  fa: { button: "زبان‌ها", select: "انتخاب زبان" },
+  ru: { button: "Языки", select: "Выберите язык" },
+  es: { button: "Idiomas", select: "Seleccionar idioma" },
+  nl: { button: "Talen", select: "Taal kiezen" },
+  bs: { button: "Jezici", select: "Odaberi jezik" },
+};
+
+const BASE: Record<Lang, Dict> = {
+  de,
+  en,
+  ar,
+  sq,
+  tr,
+  fr: extra.fr,
+  ur: extra.ur,
+  id: extra.id,
+  ms: extra.ms,
+  bn: extra.bn,
+  fa: extra.fa,
+  ru: extra.ru,
+  es: extra.es,
+  nl: extra.nl,
+  bs: extra.bs,
+};
+
+const DICTS = Object.fromEntries(
+  (Object.keys(BASE) as Lang[]).map((code) => [
+    code,
+    {
+      ...BASE[code],
+      "lang.button": LANG_BUTTON[code].button,
+      "lang.select": LANG_BUTTON[code].select,
+    },
+  ]),
+) as Record<Lang, Dict>;
 
 export type Translate = (key: string, vars?: Record<string, string | number>) => string;
 
