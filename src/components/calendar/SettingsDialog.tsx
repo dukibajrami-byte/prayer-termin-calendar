@@ -22,7 +22,7 @@ import { METHODS, type MethodKey, type MadhabKey } from "@/lib/prayer";
 import { isFreeMethod } from "@/lib/premium";
 import { useSubscription } from "@/hooks/useSubscription";
 import type { Settings } from "@/lib/store";
-import { LANGS, useI18n, type Lang } from "@/lib/i18n";
+import { useI18n } from "@/lib/i18n";
 
 const TIMEZONES = [
   "Europe/Berlin",
@@ -54,7 +54,7 @@ export function SettingsDialog({
   onLocate,
   locating,
 }: Props) {
-  const { t, lang, setLang } = useI18n();
+  const { t } = useI18n();
   const { isPremium } = useSubscription();
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -67,22 +67,6 @@ export function SettingsDialog({
         </DialogHeader>
 
         <div className="space-y-4">
-          <div className="space-y-1.5">
-            <Label>{t("lang.label")}</Label>
-            <Select value={lang} onValueChange={(v) => setLang(v as Lang)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.entries(LANGS).map(([key, label]) => (
-                  <SelectItem key={key} value={key}>
-                    {label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
           <div className="space-y-1.5">
             <Label>{t("field.method")}</Label>
             <Select

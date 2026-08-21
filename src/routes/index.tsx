@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AccessGate } from "@/components/AccessGate";
 import { createFileRoute } from "@tanstack/react-router";
 import { addDays, addMonths, startOfDay } from "date-fns";
-import { CalendarPlus, CalendarDays, ChevronLeft, ChevronRight, Compass, ListTodo, Settings2, Sparkles } from "lucide-react";
+import { CalendarPlus, CalendarDays, ChevronLeft, ChevronRight, Compass, Globe, ListTodo, Settings2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
@@ -21,10 +21,11 @@ import {
   type PrayerConfig,
   type PrayerSlot,
 } from "@/lib/prayer";
-import { LANGS, useI18n, type Lang } from "@/lib/i18n";
+import { useI18n } from "@/lib/i18n";
 import { AUTO_LOCATION, resolveLocationName, reverseGeocode } from "@/lib/location";
 import { hijriLabel, upcomingHolidays } from "@/lib/holidays";
 import { InstallButton } from "@/components/InstallButton";
+import { LanguageDialog } from "@/components/LanguageDialog";
 import { Link } from "@tanstack/react-router";
 import { useSubscription } from "@/hooks/useSubscription";
 import { FREE_REMINDER_LIMIT } from "@/lib/premium";
@@ -64,7 +65,7 @@ export const Route = createFileRoute("/")({
 type ViewMode = "day" | "week" | "month";
 
 function Index() {
-  const { t, lang, setLang } = useI18n();
+  const { t } = useI18n();
   const [settings, setSettings] = useLocalState<Settings>("mtk.settings", DEFAULT_SETTINGS);
   const { isPremium } = useSubscription();
   const [view, setView] = useState<ViewMode>("week");
@@ -77,6 +78,7 @@ function Index() {
 
   const [eventOpen, setEventOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [langOpen, setLangOpen] = useState(false);
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [locating, setLocating] = useState(false);
 
@@ -511,6 +513,8 @@ function Index() {
       />
 
       <CalendarManagerDialog open={calendarOpen} onOpenChange={setCalendarOpen} />
+
+      <LanguageDialog open={langOpen} onOpenChange={setLangOpen} />
     </main>
   );
 }
