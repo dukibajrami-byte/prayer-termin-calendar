@@ -252,78 +252,100 @@ function Index() {
               </p>
             </div>
 
-            {/* Language selector + Settings */}
-            <div className="flex items-center justify-between gap-2 sm:justify-end">
-              <div className="flex min-w-0 items-center rounded-md border border-border p-0.5">
-                {(Object.keys(LANGS) as Lang[]).map((code) => (
-                  <button
-                    key={code}
-                    type="button"
-                    onClick={() => setLang(code)}
-                    aria-pressed={lang === code}
-                    className={
-                      "rounded px-1 py-1 text-[10px] font-medium uppercase transition-colors sm:px-2 sm:text-xs " +
-                      (lang === code
-                        ? "bg-primary text-primary-foreground"
-                        : "text-muted-foreground hover:bg-secondary")
-                    }
-                  >
-                    {code}
-                  </button>
-                ))}
-              </div>
-              <div className="flex shrink-0 items-center gap-1.5">
-                <div className="sm:hidden">
-                  <InstallButton />
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-9 whitespace-nowrap px-2 text-xs shadow-sm sm:px-3"
-                  onClick={() => setSettingsOpen(true)}
-                >
-                  <Settings2 className="mr-1 h-4 w-4" />
-                  {t("nav.settings")}
-                </Button>
-              </div>
+            {/* Install button (desktop keeps it in the action row) */}
+            <div className="hidden shrink-0 items-center justify-end sm:flex">
+              <InstallButton />
             </div>
           </div>
 
-          {/* Mobile action grid: 2 rows × 2 columns */}
+          {/* Mobile action grid: 3 rows × 2 columns */}
           <div className="grid grid-cols-2 gap-2 sm:hidden">
             <Button
               variant="outline"
               size="sm"
-              className="h-10 w-full"
+              className="h-10 w-full min-w-0 justify-center px-2 text-xs"
+              onClick={() => setLangOpen(true)}
+            >
+              <Globe className="mr-1 h-4 w-4 shrink-0" aria-hidden="true" />
+              <span className="truncate">{t("lang.button")}</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-10 w-full min-w-0 justify-center px-2 text-xs"
+              onClick={() => setSettingsOpen(true)}
+            >
+              <Settings2 className="mr-1 h-4 w-4 shrink-0" aria-hidden="true" />
+              <span className="truncate">{t("nav.settings")}</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-10 w-full min-w-0 justify-center px-2 text-xs"
               onClick={() => setCalendarOpen(true)}
             >
-              <CalendarDays className="mr-1 h-4 w-4 shrink-0" /> {t("calendars.manage")}
+              <CalendarDays className="mr-1 h-4 w-4 shrink-0" aria-hidden="true" />
+              <span className="truncate">{t("calendars.manage")}</span>
             </Button>
-            <Button variant="outline" size="sm" className="h-10 w-full" asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-10 w-full min-w-0 justify-center px-2 text-xs"
+              asChild
+            >
               <Link to="/todo">
-                <ListTodo className="mr-1 h-4 w-4 shrink-0" /> {t("todo.nav")}
+                <ListTodo className="mr-1 h-4 w-4 shrink-0" aria-hidden="true" />
+                <span className="truncate">{t("todo.nav")}</span>
               </Link>
             </Button>
-            <Button variant="outline" size="sm" className="h-10 w-full" asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-10 w-full min-w-0 justify-center px-2 text-xs"
+              asChild
+            >
               <Link to="/qibla">
-                <Compass className="mr-1 h-4 w-4 shrink-0" /> {t("qibla.nav")}
+                <Compass className="mr-1 h-4 w-4 shrink-0" aria-hidden="true" />
+                <span className="truncate">{t("qibla.nav")}</span>
               </Link>
             </Button>
             <Button
               size="sm"
-              className="h-10 w-full"
+              className="h-10 w-full min-w-0 justify-center px-2 text-xs"
               onClick={() => {
                 const start = new Date();
                 start.setMinutes(0, 0, 0);
                 openNew(start);
               }}
             >
-              <CalendarPlus className="mr-1 h-4 w-4 shrink-0" /> {t("nav.newEvent")}
+              <CalendarPlus className="mr-1 h-4 w-4 shrink-0" aria-hidden="true" />
+              <span className="truncate">{t("nav.newEvent")}</span>
             </Button>
+          </div>
+
+          {/* Mobile install button (outside the action grid) */}
+          <div className="flex sm:hidden">
+            <InstallButton />
           </div>
 
           {/* Desktop action row */}
           <div className="hidden sm:flex sm:flex-wrap sm:items-center sm:gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8"
+              onClick={() => setLangOpen(true)}
+            >
+              <Globe className="mr-1 h-4 w-4" aria-hidden="true" /> {t("lang.button")}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8"
+              onClick={() => setSettingsOpen(true)}
+            >
+              <Settings2 className="mr-1 h-4 w-4" aria-hidden="true" /> {t("nav.settings")}
+            </Button>
             <Button
               variant="outline"
               size="sm"
