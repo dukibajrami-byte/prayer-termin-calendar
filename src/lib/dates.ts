@@ -21,18 +21,57 @@ const LOCALES: Record<string, Locale> = {
 };
 
 let current: Locale = de;
+let currentTag = "de";
 
 export function setDateLocale(lang: string) {
   current = LOCALES[lang] ?? enUS;
+  currentTag = lang || "en";
 }
 
 export function getDateLocale() {
   return current;
 }
 
+/** BCP47 tag with latin digits so times/dates stay unambiguous in RTL. */
+function tag() {
+  return `${currentTag}-u-nu-latn`;
+}
+
+function intl(opts: Intl.DateTimeFormatOptions) {
+  try {
+    return new Intl.DateTimeFormat(tag(), opts);
+  } catch {
+    return new Intl.DateTimeFormat("en-u-nu-latn", opts);
+  }
+}
+
+/** e.g. "August 2026" in the active language */
+export function formatMonthYear(date: Date) {
+  return intl({ month: "long", year: "numeric" }).format(date);
+}
+
+/** e.g. "Sonntag, 23. August 2026" */
+export function formatFullDate(date: Date) {
+  return intl({ weekday: "long", day: "numeric", month: "long", year: "numeric" }).format(date);
+}
+
+/** e.g. "23. Aug. 2026" */
+export function formatMediumDate(date: Date) {
+  return intl({ day: "numeric", month: "short", year: "numeric" }).format(date);
+}
+
+/** e.g. "17.–23. August 2026" – locale aware, correct in RTL */
+export function formatDateRange(start: Date, end: Date) {
+  const f = intl({ day: "numeric", month: "short", year: "numeric" });
+  const anyF = f as unknown as { formatRange?: (a: Date, b: Date) => string };
+  if (typeof anyF.formatRange === "function") return anyF.formatRange(start, end);
+  return `${f.format(start)} – ${f.format(end)}`;
+}
+
 export function fmt(date: Date, pattern: string) {
   return format(date, pattern, { locale: current });
 }
+
 
 export function weekDays(date: Date) {
   const start = startOfWeek(date, { weekStartsOn: 1 });
