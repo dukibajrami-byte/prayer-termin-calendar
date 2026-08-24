@@ -232,10 +232,11 @@ function Index() {
   };
   const rangeLabel =
     view === "month"
-      ? fmt(cursor, "MMMM yyyy")
+      ? formatMonthYear(cursor)
       : view === "day"
-        ? fmt(cursor, "EEEE, d. MMMM yyyy")
-        : `${fmt(days[0]!, "d. MMM")} – ${fmt(days[6]!, "d. MMM yyyy")}`;
+        ? formatFullDate(cursor)
+        : formatDateRange(days[0]!, days[6]!);
+
 
   return (
     <main className="min-h-screen bg-background">
