@@ -1,6 +1,6 @@
 import { useMemo, useRef } from "react";
 import { cn } from "@/lib/utils";
-import { fmt, minutesOfDay, sameDay, formatWeekdayShort, formatDayNumber, formatFullDate } from "@/lib/dates";
+import { fmt, minutesOfDay, sameDay, formatWeekdayShort, formatWeekdayNarrow, formatDayNumber, formatFullDate } from "@/lib/dates";
 import { useI18n } from "@/lib/i18n";
 import type { PrayerConfig, PrayerSlot } from "@/lib/prayer";
 import { getPrayerSlots, PRAYER_ABBR } from "@/lib/prayer";
@@ -91,7 +91,7 @@ export function TimeGrid({
             )}
           >
             <div className="text-[11px] uppercase tracking-wide text-muted-foreground">
-              {formatWeekdayShort(d)}
+              {days.length > 1 ? formatWeekdayNarrow(d) : formatWeekdayShort(d)}
             </div>
             <div
               className={cn(

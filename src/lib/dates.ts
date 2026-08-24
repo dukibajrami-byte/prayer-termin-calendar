@@ -96,6 +96,11 @@ export function formatWeekdayShort(date: Date) {
   return intl({ weekday: "short" }).format(date);
 }
 
+/** Narrow weekday, used in dense 7-column grids. */
+export function formatWeekdayNarrow(date: Date) {
+  return intl({ weekday: "narrow" }).format(date);
+}
+
 /** Day number with latin digits */
 export function formatDayNumber(date: Date) {
   return intl({ day: "numeric" }).format(date);
