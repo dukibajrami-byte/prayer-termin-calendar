@@ -90,3 +90,13 @@ export function toLocalInput(date: Date) {
 export function sameDay(a: Date, b: Date) {
   return a.toDateString() === b.toDateString();
 }
+
+/** Short weekday name in the active language, e.g. "Mo" / "Sun" / "اتوار" */
+export function formatWeekdayShort(date: Date) {
+  return intl({ weekday: "short" }).format(date);
+}
+
+/** Day number with latin digits */
+export function formatDayNumber(date: Date) {
+  return intl({ day: "numeric" }).format(date);
+}
