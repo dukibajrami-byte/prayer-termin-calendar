@@ -98,7 +98,12 @@ export function formatWeekdayShort(date: Date) {
 
 /** Narrow weekday, used in dense 7-column grids. */
 export function formatWeekdayNarrow(date: Date) {
-  return intl({ weekday: "narrow" }).format(date);
+  const narrow = intl({ weekday: "narrow" }).format(date);
+  const short = intl({ weekday: "short" }).format(date);
+  // Some locales (e.g. ur) fall back to a latin letter for "narrow";
+  // prefer a trimmed localized short name in that case.
+  if (/^[A-Za-z]/.test(narrow) && !/^[A-Za-z]/.test(short)) return short.slice(0, 3);
+  return narrow;
 }
 
 /** Day number with latin digits */
