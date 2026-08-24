@@ -32,16 +32,16 @@ export function getDateLocale() {
   return current;
 }
 
-/** BCP47 tag with latin digits so times/dates stay unambiguous in RTL. */
+/** BCP47 tag: Gregorian calendar + latin digits so dates stay unambiguous. */
 function tag() {
-  return `${currentTag}-u-nu-latn`;
+  return `${currentTag}-u-ca-gregory-nu-latn`;
 }
 
 function intl(opts: Intl.DateTimeFormatOptions) {
   try {
     return new Intl.DateTimeFormat(tag(), opts);
   } catch {
-    return new Intl.DateTimeFormat("en-u-nu-latn", opts);
+    return new Intl.DateTimeFormat("en-u-ca-gregory-nu-latn", opts);
   }
 }
 
