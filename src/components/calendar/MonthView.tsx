@@ -8,7 +8,7 @@ import {
   startOfWeek,
 } from "date-fns";
 import { cn } from "@/lib/utils";
-import { fmt, sameDay } from "@/lib/dates";
+import { fmt, sameDay, formatWeekdayNarrow, formatDayNumber } from "@/lib/dates";
 import { useI18n } from "@/lib/i18n";
 import { getPrayerSlots, type PrayerConfig } from "@/lib/prayer";
 import { holidaysOn } from "@/lib/holidays";
@@ -47,7 +47,7 @@ export function MonthView({
             key={i}
             className="px-2 py-2 text-center text-[11px] uppercase tracking-wide text-muted-foreground"
           >
-            {fmt(addDays(start, i), "EEEEEE")}
+            {formatWeekdayNarrow(addDays(start, i))}
           </div>
         ))}
       </div>
@@ -76,10 +76,10 @@ export function MonthView({
                       "flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground",
                   )}
                 >
-                  {fmt(day, "d")}
+                  {formatDayNumber(day)}
                 </span>
                 <span className="text-[9px] text-prayer-foreground/70">
-                  {fmt(slots[1]!.start, "HH:mm")}
+                  <bdi dir="ltr">{fmt(slots[1]!.start, "HH:mm")}</bdi>
                 </span>
               </div>
               <div className="mt-1 space-y-0.5">
@@ -114,7 +114,7 @@ export function MonthView({
                         style={{ backgroundColor: cal?.color }}
                       />
                       <span className="truncate">
-                        {fmt(new Date(e.start), "HH:mm")} {e.title}
+                        <bdi dir="ltr">{fmt(new Date(e.start), "HH:mm")}</bdi> {e.title}
                       </span>
                     </span>
                   );

@@ -32,16 +32,16 @@ export function getDateLocale() {
   return current;
 }
 
-/** BCP47 tag with latin digits so times/dates stay unambiguous in RTL. */
+/** BCP47 tag: Gregorian calendar + latin digits so dates stay unambiguous. */
 function tag() {
-  return `${currentTag}-u-nu-latn`;
+  return `${currentTag}-u-ca-gregory-nu-latn`;
 }
 
 function intl(opts: Intl.DateTimeFormatOptions) {
   try {
     return new Intl.DateTimeFormat(tag(), opts);
   } catch {
-    return new Intl.DateTimeFormat("en-u-nu-latn", opts);
+    return new Intl.DateTimeFormat("en-u-ca-gregory-nu-latn", opts);
   }
 }
 
@@ -89,4 +89,24 @@ export function toLocalInput(date: Date) {
 
 export function sameDay(a: Date, b: Date) {
   return a.toDateString() === b.toDateString();
+}
+
+/** Short weekday name in the active language, e.g. "Mo" / "Sun" / "اتوار" */
+export function formatWeekdayShort(date: Date) {
+  return intl({ weekday: "short" }).format(date);
+}
+
+/** Narrow weekday, used in dense 7-column grids. */
+export function formatWeekdayNarrow(date: Date) {
+  const narrow = intl({ weekday: "narrow" }).format(date);
+  const short = intl({ weekday: "short" }).format(date);
+  // Some locales (e.g. ur) fall back to a latin letter for "narrow";
+  // prefer a trimmed localized short name in that case.
+  if (/^[A-Za-z]/.test(narrow) && !/^[A-Za-z]/.test(short)) return short.slice(0, 3);
+  return narrow;
+}
+
+/** Day number with latin digits */
+export function formatDayNumber(date: Date) {
+  return intl({ day: "numeric" }).format(date);
 }

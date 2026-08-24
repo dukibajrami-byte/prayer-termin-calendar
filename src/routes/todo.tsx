@@ -21,7 +21,7 @@ import { useTodos, type Todo } from "@/hooks/useTodos";
 import { todoDueDate } from "@/hooks/useTodoReminders";
 import { TodoDebugPanel } from "@/components/TodoDebugPanel";
 import { FREE_TODO_LIMIT } from "@/lib/premium";
-import { fmt } from "@/lib/dates";
+import { fmt, formatMediumDate } from "@/lib/dates";
 
 export const Route = createFileRoute("/todo")({
   ssr: false,
@@ -226,7 +226,7 @@ function Row({
             {dueAt ? (
               <span className={overdue ? "text-destructive" : ""}>
                 {overdue ? t("todo.overdue") : t("todo.due")}:{" "}
-                {fmt(dueAt, item.dueTime ? "d. MMM yyyy, HH:mm" : "d. MMM yyyy")}
+                <bdi>{formatMediumDate(dueAt)}{item.dueTime ? `, ${fmt(dueAt, "HH:mm")}` : ""}</bdi>
               </span>
             ) : (
               t("todo.noDue")
