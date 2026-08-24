@@ -13,7 +13,7 @@ import { EventDialog } from "@/components/calendar/EventDialog";
 import { SettingsDialog } from "@/components/calendar/SettingsDialog";
 import { CalendarManagerDialog } from "@/components/calendar/CalendarManagerDialog";
 import { PrayerStrip } from "@/components/calendar/PrayerStrip";
-import { fmt, weekDays } from "@/lib/dates";
+import { fmt, weekDays, formatMonthYear, formatFullDate, formatDateRange, formatMediumDate } from "@/lib/dates";
 import {
   collidingPrayers,
   getPrayerSlots,
@@ -485,7 +485,7 @@ function Index() {
                   className="flex items-center justify-between gap-3 border-b border-border/60 pb-2 text-sm last:border-0 last:pb-0"
                 >
                   <span className="flex min-w-0 items-center gap-2 font-medium"><Sparkles className="h-4 w-4 shrink-0 text-accent" /><span className="truncate">{t(`holiday.${key}`)}</span></span>
-                  <span className="shrink-0 text-muted-foreground">{fmt(date, "d. MMM yyyy")}</span>
+                  <bdi className="shrink-0 text-muted-foreground">{formatMediumDate(date)}</bdi>
                 </li>
               ))}
             </ul>
