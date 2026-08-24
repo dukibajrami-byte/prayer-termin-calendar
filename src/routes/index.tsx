@@ -406,7 +406,7 @@ function Index() {
             <Button variant="ghost" size="icon" aria-label={t("nav.next")} onClick={() => step(1)}>
               <ChevronRight className="h-4 w-4" />
             </Button>
-            <span className="ml-2 font-display text-lg">{hydrated ? rangeLabel : ""}</span>
+            <bdi className="ml-2 font-display text-lg">{hydrated ? rangeLabel : ""}</bdi>
             <Button
               variant="link"
               size="sm"
