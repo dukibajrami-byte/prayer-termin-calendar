@@ -1,9 +1,9 @@
 import { useMemo, useRef } from "react";
 import { cn } from "@/lib/utils";
-import { fmt, minutesOfDay, sameDay } from "@/lib/dates";
+import { fmt, minutesOfDay, sameDay, formatWeekdayShort, formatDayNumber, formatFullDate } from "@/lib/dates";
 import { useI18n } from "@/lib/i18n";
 import type { PrayerConfig, PrayerSlot } from "@/lib/prayer";
-import { getPrayerSlots } from "@/lib/prayer";
+import { getPrayerSlots, PRAYER_ABBR } from "@/lib/prayer";
 import { holidaysOn } from "@/lib/holidays";
 import type { CalEvent, SharedCalendar } from "@/lib/store";
 
@@ -91,7 +91,7 @@ export function TimeGrid({
             )}
           >
             <div className="text-[11px] uppercase tracking-wide text-muted-foreground">
-              {fmt(d, "EEEEEE")}
+              {formatWeekdayShort(d)}
             </div>
             <div
               className={cn(
@@ -99,7 +99,7 @@ export function TimeGrid({
                 sameDay(d, now) ? "text-primary font-semibold" : "text-foreground",
               )}
             >
-              {fmt(d, "d")}
+              {formatDayNumber(d)}
             </div>
             {holidaysOn(d).map((h) => (
               <div
@@ -143,7 +143,7 @@ export function TimeGrid({
                   <button
                     key={h}
                     type="button"
-                    aria-label={t("grid.createAria", { date: fmt(day, "d MMMM"), hour: h })}
+                    aria-label={t("grid.createAria", { date: formatFullDate(day), hour: h })}
                     onClick={() => {
                       const d = new Date(day);
                       d.setHours(h, 0, 0, 0);
@@ -169,6 +169,7 @@ export function TimeGrid({
                     lastLabelBottom = labelTop + LABEL_HEIGHT + 1;
                     const time = fmt(p.start, "HH:mm");
                     const name = t(`prayer.${p.name}`);
+                    const abbr = PRAYER_ABBR[p.name];
                     return (
                       <div key={`${p.name}-${p.start.getTime()}`} className="pointer-events-none">
                         <div
@@ -185,16 +186,11 @@ export function TimeGrid({
                             style={{ lineHeight: `${LABEL_HEIGHT}px` }}
                           >
                             {days.length === 1 ? (
-                              <span>{name} · {time}</span>
+                              <bdi>{name} · {time}</bdi>
                             ) : (
-                              <>
-                                <span className="sm:hidden">
-                                  {name.charAt(0)} {time}
-                                </span>
-                                <span className="hidden sm:inline">
-                                  {name} · {time}
-                                </span>
-                              </>
+                              <bdi dir="ltr">
+                                {abbr} {time}
+                              </bdi>
                             )}
                           </span>
                         </div>
@@ -232,7 +228,7 @@ export function TimeGrid({
                         {e.title}
                       </span>
                       <span className="block truncate text-[10px] text-muted-foreground">
-                        {fmt(start, "HH:mm")}–{fmt(end, "HH:mm")}
+                        <bdi dir="ltr">{fmt(start, "HH:mm")}–{fmt(end, "HH:mm")}</bdi>
                       </span>
                     </button>
                   );

@@ -16,6 +16,15 @@ export const PRAYER_LABELS: Record<PrayerName, string> = {
   isha: "Isha",
 };
 
+/** Language-neutral compact abbreviations used in narrow calendar bands. */
+export const PRAYER_ABBR: Record<PrayerName, string> = {
+  fajr: "F",
+  dhuhr: "D",
+  asr: "A",
+  maghrib: "M",
+  isha: "I",
+};
+
 export const METHODS = {
   MuslimWorldLeague: "Muslim World League",
   Egyptian: "Egyptian General Authority",
