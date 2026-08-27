@@ -38,6 +38,7 @@ import {
   type SharedCalendar,
 } from "@/lib/store";
 import { useEvents } from "@/hooks/useEvents";
+import { calendarLabel } from "@/lib/calendar-labels";
 
 
 
@@ -71,8 +72,7 @@ function Index() {
   const [view, setView] = useState<ViewMode>("week");
   const [cursor, setCursor] = useState(() => startOfDay(new Date()));
   const { events, calendars, upsert, remove } = useEvents(cursor, view);
-  const calendarName = (c: SharedCalendar) =>
-    DEFAULT_CALENDARS.some((dc) => dc.id === c.id) ? t(`cal.${c.id}`) : c.name;
+  const calendarName = (c: SharedCalendar) => calendarLabel(c, t);
   const [draft, setDraft] = useState<CalEvent | null>(null);
 
 
