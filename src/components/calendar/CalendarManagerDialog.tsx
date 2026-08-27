@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { calendarLabel } from "@/lib/calendar-labels";
 import { useI18n } from "@/lib/i18n";
 import { useCalendars } from "@/hooks/useCalendars";
 import type { CalendarKind, CalendarRow } from "@/lib/calendar.functions";
@@ -92,7 +93,7 @@ export function CalendarManagerDialog({ open, onOpenChange }: Props) {
   };
 
   const startEdit = (cal: CalendarRow) => {
-    setEditName(cal.name);
+    setEditName(calendarLabel(cal, t));
     setExpanded(cal.id);
   };
 
@@ -202,7 +203,7 @@ export function CalendarManagerDialog({ open, onOpenChange }: Props) {
                           style={{ backgroundColor: cal.color }}
                         />
                         <div>
-                          <div className="font-medium">{cal.name}</div>
+                          <div className="font-medium">{calendarLabel(cal, t)}</div>
                           <div className="text-xs text-muted-foreground">
                             {t(`calendars.kind.${cal.kind}`)}
                           </div>
@@ -229,7 +230,7 @@ export function CalendarManagerDialog({ open, onOpenChange }: Props) {
                           <Label>{t("calendars.name")}</Label>
                           <div className="flex gap-2">
                             <Input
-                              value={editName || cal.name}
+                              value={editName || calendarLabel(cal, t)}
                               onChange={(e) => setEditName(e.target.value)}
                               onFocus={() => startEdit(cal)}
                               onBlur={() => saveEdit(cal)}

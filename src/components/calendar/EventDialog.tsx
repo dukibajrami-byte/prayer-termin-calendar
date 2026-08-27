@@ -123,7 +123,7 @@ export function EventDialog({
                 <SelectContent>
                   {calendars.map((c) => (
                     <SelectItem key={c.id} value={c.id}>
-                      {t(`cal.${c.id}`)}
+                      {c.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
