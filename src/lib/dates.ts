@@ -37,6 +37,21 @@ function tag() {
   return `${currentTag}-u-ca-gregory-nu-latn`;
 }
 
+/**
+ * Some runtimes (e.g. Chromium builds with reduced ICU data) silently fall back
+ * to English for locales such as `sq`. In that case we format with the bundled
+ * date-fns locale instead so month/weekday names stay localized.
+ */
+function intlUsable() {
+  if (currentTag === "en") return true;
+  try {
+    const resolved = new Intl.DateTimeFormat(tag(), { month: "long" }).resolvedOptions().locale;
+    return resolved.split("-")[0] === currentTag.split("-")[0];
+  } catch {
+    return false;
+  }
+}
+
 function intl(opts: Intl.DateTimeFormatOptions) {
   try {
     return new Intl.DateTimeFormat(tag(), opts);
@@ -44,6 +59,7 @@ function intl(opts: Intl.DateTimeFormatOptions) {
     return new Intl.DateTimeFormat("en-u-ca-gregory-nu-latn", opts);
   }
 }
+
 
 /** e.g. "August 2026" in the active language */
 export function formatMonthYear(date: Date) {
