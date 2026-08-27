@@ -1005,7 +1005,7 @@ const BASE: Record<Lang, Dict> = {
   bs: extra.bs,
 };
 
-const DICTS = Object.fromEntries(
+export const DICTS = Object.fromEntries(
   (Object.keys(BASE) as Lang[]).map((code) => [
     code,
     {
