@@ -95,6 +95,8 @@ async def audit(page, lang: str, width: int):
     out = await page.evaluate(
         """(w) => [...document.querySelectorAll('header *, main *')]
               .filter(el => el.getBoundingClientRect().width > 0)
+              // sonner's toast viewport is fixed and intentionally parked off-canvas
+              .filter(el => !el.closest('[data-sonner-toaster], .toaster'))
               .filter(el => { const r = el.getBoundingClientRect();
                               return r.right > w + 1 || r.left < -1; })
               .slice(0, 5)
