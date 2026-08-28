@@ -63,26 +63,33 @@ function intl(opts: Intl.DateTimeFormatOptions) {
 
 /** e.g. "August 2026" in the active language */
 export function formatMonthYear(date: Date) {
+  if (!intlUsable()) return format(date, "LLLL yyyy", { locale: current });
   return intl({ month: "long", year: "numeric" }).format(date);
 }
 
 /** e.g. "Sonntag, 23. August 2026" */
 export function formatFullDate(date: Date) {
+  if (!intlUsable()) return format(date, "PPPP", { locale: current });
   return intl({ weekday: "long", day: "numeric", month: "long", year: "numeric" }).format(date);
 }
 
 /** e.g. "23. Aug. 2026" */
 export function formatMediumDate(date: Date) {
+  if (!intlUsable()) return format(date, "PP", { locale: current });
   return intl({ day: "numeric", month: "short", year: "numeric" }).format(date);
 }
 
 /** e.g. "17.–23. August 2026" – locale aware, correct in RTL */
 export function formatDateRange(start: Date, end: Date) {
+  if (!intlUsable()) {
+    return `${format(start, "d", { locale: current })}–${format(end, "PP", { locale: current })}`;
+  }
   const f = intl({ day: "numeric", month: "short", year: "numeric" });
   const anyF = f as unknown as { formatRange?: (a: Date, b: Date) => string };
   if (typeof anyF.formatRange === "function") return anyF.formatRange(start, end);
   return `${f.format(start)} – ${f.format(end)}`;
 }
+
 
 export function fmt(date: Date, pattern: string) {
   return format(date, pattern, { locale: current });
@@ -109,11 +116,13 @@ export function sameDay(a: Date, b: Date) {
 
 /** Short weekday name in the active language, e.g. "Mo" / "Sun" / "اتوار" */
 export function formatWeekdayShort(date: Date) {
+  if (!intlUsable()) return format(date, "EEE", { locale: current });
   return intl({ weekday: "short" }).format(date);
 }
 
 /** Narrow weekday, used in dense 7-column grids. */
 export function formatWeekdayNarrow(date: Date) {
+  if (!intlUsable()) return format(date, "EEEEE", { locale: current });
   const narrow = intl({ weekday: "narrow" }).format(date);
   const short = intl({ weekday: "short" }).format(date);
   // Some locales (e.g. ur) fall back to a latin letter for "narrow";
@@ -121,6 +130,7 @@ export function formatWeekdayNarrow(date: Date) {
   if (/^[A-Za-z]/.test(narrow) && !/^[A-Za-z]/.test(short)) return short.slice(0, 3);
   return narrow;
 }
+
 
 /** Day number with latin digits */
 export function formatDayNumber(date: Date) {

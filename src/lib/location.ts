@@ -11,6 +11,8 @@ export function resolveLocationName(
   if (name === AUTO_LOCATION) {
     return `${t("loc.current")} (${latitude.toFixed(2)}, ${longitude.toFixed(2)})`;
   }
+  // Legacy default carried a German country name; keep the proper noun only.
+  if (name === "Berlin, Deutschland") return "Berlin";
   return name;
 }
 
