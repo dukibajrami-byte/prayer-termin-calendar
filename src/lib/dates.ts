@@ -116,11 +116,13 @@ export function sameDay(a: Date, b: Date) {
 
 /** Short weekday name in the active language, e.g. "Mo" / "Sun" / "اتوار" */
 export function formatWeekdayShort(date: Date) {
+  if (!intlUsable()) return format(date, "EEE", { locale: current });
   return intl({ weekday: "short" }).format(date);
 }
 
 /** Narrow weekday, used in dense 7-column grids. */
 export function formatWeekdayNarrow(date: Date) {
+  if (!intlUsable()) return format(date, "EEEEE", { locale: current });
   const narrow = intl({ weekday: "narrow" }).format(date);
   const short = intl({ weekday: "short" }).format(date);
   // Some locales (e.g. ur) fall back to a latin letter for "narrow";
@@ -128,6 +130,7 @@ export function formatWeekdayNarrow(date: Date) {
   if (/^[A-Za-z]/.test(narrow) && !/^[A-Za-z]/.test(short)) return short.slice(0, 3);
   return narrow;
 }
+
 
 /** Day number with latin digits */
 export function formatDayNumber(date: Date) {
