@@ -619,7 +619,7 @@ const sq: Dict = {
   "section.calendar": "Kalendari me kohët e namazit",
   "app.subtitle": "Planifiko takimet në harmoni me kohët e namazit.",
   "nav.settings": "Cilësimet",
-  "nav.newEvent": "+ New",
+  "nav.newEvent": "+ I ri",
   "nav.prev": "Mbrapa",
   "nav.next": "Përpara",
   "nav.today": "Sot",
