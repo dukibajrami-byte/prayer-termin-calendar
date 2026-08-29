@@ -1035,6 +1035,8 @@ export type Translate = (key: string, vars?: Record<string, string | number>) =>
 
 interface Ctx {
   lang: Lang;
+  /** True once the stored language has been read on the client. */
+  ready: boolean;
   setLang: (lang: Lang) => void;
   t: Translate;
   dir: "ltr" | "rtl";
@@ -1046,6 +1048,7 @@ const STORAGE_KEY = "mtk.lang";
 
 export function I18nProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<Lang>("en");
+  const [ready, setReady] = useState(false);
   setDateLocale(lang);
 
   useEffect(() => {
@@ -1053,6 +1056,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     if (stored && stored in DICTS) {
       setLangState(stored);
     }
+    setReady(true);
   }, []);
 
   useEffect(() => {
@@ -1081,20 +1085,21 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   );
 
   const value = useMemo<Ctx>(
-    () => ({ lang, setLang, t, dir: dirFor(lang) }),
-    [lang, setLang, t],
+    () => ({ lang, ready, setLang, t, dir: dirFor(lang) }),
+    [lang, ready, setLang, t],
   );
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 }
 
 const fallbackT: Translate = (key, vars) => {
-  const raw = DICTS.de[key] ?? DICTS.en[key] ?? key;
+  const raw = DICTS.en[key] ?? key;
   return vars ? raw.replace(/\{(\w+)\}/g, (_, k: string) => String(vars[k] ?? `{${k}}`)) : raw;
 };
 
 const FALLBACK: Ctx = {
-  lang: "de",
+  lang: "en",
+  ready: false,
   setLang: () => {},
   t: fallbackT,
   dir: "ltr",

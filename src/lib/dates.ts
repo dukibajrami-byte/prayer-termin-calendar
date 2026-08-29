@@ -45,12 +45,16 @@ function tag() {
 function intlUsable() {
   if (currentTag === "en") return true;
   try {
-    const resolved = new Intl.DateTimeFormat(tag(), { month: "long" }).resolvedOptions().locale;
-    return resolved.split("-")[0] === currentTag.split("-")[0];
+    const f = new Intl.DateTimeFormat(tag(), { month: "long" });
+    if (f.resolvedOptions().locale.split("-")[0] !== currentTag.split("-")[0]) return false;
+    // Placeholder data (e.g. "M08") means the runtime has no real month names.
+    const sample = f.format(new Date(2020, 7, 1));
+    return !/^M?\d+$/.test(sample);
   } catch {
     return false;
   }
 }
+
 
 function intl(opts: Intl.DateTimeFormatOptions) {
   try {
@@ -82,8 +86,9 @@ export function formatMediumDate(date: Date) {
 /** e.g. "17.–23. August 2026" – locale aware, correct in RTL */
 export function formatDateRange(start: Date, end: Date) {
   if (!intlUsable()) {
-    return `${format(start, "d", { locale: current })}–${format(end, "PP", { locale: current })}`;
+    return `${format(start, "d", { locale: current })}–${format(end, "d MMM yyyy", { locale: current })}`;
   }
+
   const f = intl({ day: "numeric", month: "short", year: "numeric" });
   const anyF = f as unknown as { formatRange?: (a: Date, b: Date) => string };
   if (typeof anyF.formatRange === "function") return anyF.formatRange(start, end);

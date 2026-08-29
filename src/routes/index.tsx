@@ -66,7 +66,7 @@ export const Route = createFileRoute("/")({
 type ViewMode = "day" | "week" | "month";
 
 function Index() {
-  const { t, lang } = useI18n();
+  const { t, lang, ready: langReady } = useI18n();
   const [settings, setSettings] = useLocalState<Settings>("mtk.settings", DEFAULT_SETTINGS);
   const { isPremium } = useSubscription();
   const [view, setView] = useState<ViewMode>("week");
@@ -139,11 +139,14 @@ function Index() {
   }, [setSettings, t, lang]);
 
   useEffect(() => {
+    // Wait until the stored language is applied so any toast is localized.
+    if (!langReady) return;
     if (settings.autoLocation && settings.locationName === DEFAULT_SETTINGS.locationName) {
       locate();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [settings.autoLocation]);
+  }, [settings.autoLocation, langReady]);
+
 
   const todaySlots = useMemo(() => getPrayerSlots(now, config), [now, config]);
   const upcoming: PrayerSlot | null = useMemo(() => nextPrayer(now, config), [now, config]);
