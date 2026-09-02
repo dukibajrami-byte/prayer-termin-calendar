@@ -20,15 +20,6 @@ import {
 
 const lovableAuth = createLovableAuth();
 
-type OAuthDebugState = {
-  phase: "before" | "after";
-  redirectUri: string;
-  nativeFlow: boolean;
-  windowHref: string;
-  redirected: boolean | null;
-  oauthUrl: string | null;
-};
-
 export const Route = createFileRoute("/auth")({
   ssr: false,
   validateSearch: (
@@ -72,8 +63,6 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
-  const [nativeDebugMsg, setNativeDebugMsg] = useState<string | null>(null);
-  const [oauthDebug, setOauthDebug] = useState<OAuthDebugState | null>(null);
   const { isPremium, loading: subLoading } = useSubscription();
   // Signed-in users with premium access go straight to the calendar, everyone
   // else is sent to the plan selection.
@@ -92,18 +81,7 @@ function AuthPage() {
     // Opened from the native app in the system browser: the global
     // useNativeOAuthHandoff() hook owns the deep-link handoff, so we only
     // avoid navigating away here.
-    if (nativeFlow) {
-      if (session) {
-        // eslint-disable-next-line no-console
-        console.log("[native-oauth-debug] Valid Supabase session exists before handoff");
-        setNativeDebugMsg("Native session ready");
-      } else {
-        // eslint-disable-next-line no-console
-        console.log("[native-oauth-debug] No Supabase session available for native handoff");
-        setNativeDebugMsg("Native session missing");
-      }
-      return;
-    }
+    if (nativeFlow) return;
     if (!user) return;
     // Wait until the subscription status is known so we never redirect to the
     // wrong destination.
@@ -149,37 +127,10 @@ function AuthPage() {
       ? `${WEB_ORIGIN}/native-auth-callback?next=${encodeURIComponent(target)}`
       : `${window.location.origin}/auth?next=${encodeURIComponent(target)}`;
 
-    // cloud-auth-js generates a random `state` internally and does not expose
-    // the final broker URL. This is the otherwise exact, token-free request URL.
-    const oauthUrl = new URL("/~oauth/initiate", window.location.origin);
-    oauthUrl.searchParams.set("provider", "google");
-    oauthUrl.searchParams.set("redirect_uri", redirectUri);
-    const beforeDebug: OAuthDebugState = {
-      phase: "before",
-      redirectUri,
-      nativeFlow,
-      windowHref: window.location.href,
-      redirected: null,
-      oauthUrl: oauthUrl.toString(),
-    };
-    setOauthDebug(beforeDebug);
-    await new Promise<void>((resolve) => window.requestAnimationFrame(() => resolve()));
-    // eslint-disable-next-line no-console
-    console.log("[oauth-debug:before]", beforeDebug);
     const result = await lovableAuth.signInWithOAuth("google", {
       redirect_uri: redirectUri,
     });
 
-    const afterDebug: OAuthDebugState = {
-      ...beforeDebug,
-      phase: "after",
-      windowHref: window.location.href,
-      redirected: result.redirected === true,
-    };
-    setOauthDebug(afterDebug);
-    // Deliberately log only redirect metadata, never the returned tokens.
-    // eslint-disable-next-line no-console
-    console.log("[oauth-debug:after]", afterDebug);
     if (result.error) {
       toast.error(String(result.error));
       return;
@@ -197,41 +148,6 @@ function AuthPage() {
     <main className="flex min-h-screen items-center justify-center bg-background px-4">
       <Toaster />
       <div className="w-full max-w-sm space-y-5 rounded-2xl border border-border bg-card p-6">
-        {nativeDebugMsg && (
-          <div
-            className={`rounded-lg px-3 py-2 text-center text-sm font-medium ${
-              nativeDebugMsg === "Native session ready"
-                ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-200"
-                : "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-200"
-            }`}
-          >
-            {nativeDebugMsg}
-          </div>
-        )}
-        {oauthDebug && (
-          <div className="rounded-lg border border-border bg-muted/50 p-3 space-y-1">
-            <p className="text-xs font-medium text-muted-foreground">
-              OAuth debug ({oauthDebug.phase})
-            </p>
-            <p className="text-xs break-all font-mono text-foreground">
-              redirect_uri: {oauthDebug.redirectUri}
-            </p>
-            <p className="text-xs break-all font-mono text-foreground">
-              window.location.href: {oauthDebug.windowHref}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              nativeFlow: {String(oauthDebug.nativeFlow)}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              result.redirected: {oauthDebug.redirected === null ? "pending" : String(oauthDebug.redirected)}
-            </p>
-            {oauthDebug.oauthUrl && (
-              <p className="text-xs break-all font-mono text-muted-foreground">
-                OAuth URL (without internal state): {oauthDebug.oauthUrl}
-              </p>
-            )}
-          </div>
-        )}
         <div className="space-y-1">
           <h1 className="font-display text-xl font-semibold">
             {mode === "signin" ? t("auth.signIn") : t("auth.signUp")}
