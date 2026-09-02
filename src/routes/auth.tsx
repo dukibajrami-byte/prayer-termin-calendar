@@ -175,41 +175,6 @@ function AuthPage() {
     <main className="flex min-h-screen items-center justify-center bg-background px-4">
       <Toaster />
       <div className="w-full max-w-sm space-y-5 rounded-2xl border border-border bg-card p-6">
-        {nativeDebugMsg && (
-          <div
-            className={`rounded-lg px-3 py-2 text-center text-sm font-medium ${
-              nativeDebugMsg === "Native session ready"
-                ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-200"
-                : "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-200"
-            }`}
-          >
-            {nativeDebugMsg}
-          </div>
-        )}
-        {oauthDebug && (
-          <div className="rounded-lg border border-border bg-muted/50 p-3 space-y-1">
-            <p className="text-xs font-medium text-muted-foreground">
-              OAuth debug ({oauthDebug.phase})
-            </p>
-            <p className="text-xs break-all font-mono text-foreground">
-              redirect_uri: {oauthDebug.redirectUri}
-            </p>
-            <p className="text-xs break-all font-mono text-foreground">
-              window.location.href: {oauthDebug.windowHref}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              nativeFlow: {String(oauthDebug.nativeFlow)}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              result.redirected: {oauthDebug.redirected === null ? "pending" : String(oauthDebug.redirected)}
-            </p>
-            {oauthDebug.oauthUrl && (
-              <p className="text-xs break-all font-mono text-muted-foreground">
-                OAuth URL (without internal state): {oauthDebug.oauthUrl}
-              </p>
-            )}
-          </div>
-        )}
         <div className="space-y-1">
           <h1 className="font-display text-xl font-semibold">
             {mode === "signin" ? t("auth.signIn") : t("auth.signUp")}
