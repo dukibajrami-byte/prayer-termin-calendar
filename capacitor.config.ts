@@ -6,7 +6,7 @@ const config: CapacitorConfig = {
   webDir: "dist",
   server: {
     // Die App ist serverseitig gerendert, daher lädt die native Hülle die Live-Seite.
-    url: "https://muslimtermin.com",
+    url: "https://muslim-calendar.com",
     cleartext: false,
   },
   android: {
