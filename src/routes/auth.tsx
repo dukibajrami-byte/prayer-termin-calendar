@@ -127,37 +127,10 @@ function AuthPage() {
       ? `${WEB_ORIGIN}/native-auth-callback?next=${encodeURIComponent(target)}`
       : `${window.location.origin}/auth?next=${encodeURIComponent(target)}`;
 
-    // cloud-auth-js generates a random `state` internally and does not expose
-    // the final broker URL. This is the otherwise exact, token-free request URL.
-    const oauthUrl = new URL("/~oauth/initiate", window.location.origin);
-    oauthUrl.searchParams.set("provider", "google");
-    oauthUrl.searchParams.set("redirect_uri", redirectUri);
-    const beforeDebug: OAuthDebugState = {
-      phase: "before",
-      redirectUri,
-      nativeFlow,
-      windowHref: window.location.href,
-      redirected: null,
-      oauthUrl: oauthUrl.toString(),
-    };
-    setOauthDebug(beforeDebug);
-    await new Promise<void>((resolve) => window.requestAnimationFrame(() => resolve()));
-    // eslint-disable-next-line no-console
-    console.log("[oauth-debug:before]", beforeDebug);
     const result = await lovableAuth.signInWithOAuth("google", {
       redirect_uri: redirectUri,
     });
 
-    const afterDebug: OAuthDebugState = {
-      ...beforeDebug,
-      phase: "after",
-      windowHref: window.location.href,
-      redirected: result.redirected === true,
-    };
-    setOauthDebug(afterDebug);
-    // Deliberately log only redirect metadata, never the returned tokens.
-    // eslint-disable-next-line no-console
-    console.log("[oauth-debug:after]", afterDebug);
     if (result.error) {
       toast.error(String(result.error));
       return;
