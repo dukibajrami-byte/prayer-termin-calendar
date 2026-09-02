@@ -63,7 +63,24 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
-...
+  const { isPremium, loading: subLoading } = useSubscription();
+  // Signed-in users with premium access go straight to the calendar, everyone
+  // else is sent to the plan selection.
+  const target = next ?? (isPremium ? "/" : "/premium");
+  // `native=1` is only present on the first hop; after the Google round trip we
+  // rely on the persisted flag (or the Capacitor bridge itself) so we never fall
+  // through to the web flow.
+  const nativeFlow = Boolean(native) || isNativeApp() || getPendingNativeHandoff() !== null;
+
+  useEffect(() => {
+    if (native) markNativeHandoffPending(target);
+  }, [native, target]);
+
+  useEffect(() => {
+    if (loading) return;
+    // Opened from the native app in the system browser: the global
+    // useNativeOAuthHandoff() hook owns the deep-link handoff, so we only
+    // avoid navigating away here.
     if (nativeFlow) return;
     if (!user) return;
     // Wait until the subscription status is known so we never redirect to the
